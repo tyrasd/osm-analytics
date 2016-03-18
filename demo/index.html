@@ -2,28 +2,67 @@
 <html>
   <head>
     <meta charset='UTF-8'/>
-    <title>Mapbox GL JS rendering my own tiles</title>
+    <title>osm-dat demo</title>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.css' rel='stylesheet' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.js'></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl-dev.js'></script>
+    <script src='chroniton-bundle.js'></script>
+    <link href='chroniton.css' rel='stylesheet' type='text/css' />
     <style>
       body { margin:0; padding:0 }
-      #map { position:absolute; top:0; bottom:50px; width:100%; }
+      #map { position:absolute; top:0; bottom:60px; width:100%; }
+      .chroniton { position:absolute; bottom:5px; }
     </style>
   </head>
   <body>
-    <div id='map'>
-    </div>
+    <div id='map'></div>
     <script>
 
       mapboxgl.accessToken = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
       var map = new mapboxgl.Map({
         container: 'map',
-        center: [18.65602,-72.25125].reverse(),
-        zoom: 12,
-        style: 'minimal.json'
+        center: [18.66459,-72.24312].reverse(),
+        zoom: 13,
+        style: 'buildings.json',
+        hash: true
       });
 
+      map.on("mousemove", function(e) {
+        map.featuresAt(e.point, { radius: 1, includeGeometry: true }, function(err, features) {
+          if (features.length)
+            console.log(features[0]);
+        })
+      });
 
+      map.on("load", function() {
+        var highlightLayer = {
+          "id": "buildings-highlight",
+          "interactive": false,
+          "type": "fill",
+          "source": "osm-buildings-raw",
+          "source-layer": "osm",
+          "paint": {
+            "fill-color": "#ffa500",
+            "fill-opacity": 0.5
+          }
+        };
+        map.addLayer(highlightLayer);
+
+        var filterTimeout;
+        d3.select(document.body)
+        .append('div')
+        .attr('class', 'chroniton')
+        .call(chroniton()
+            .domain([new Date('2006-01-01'), new Date()])
+            .width(window.innerWidth)
+            .on('change', function(d) {
+              if (filterTimeout) clearTimeout(filterTimeout);
+              filterTimeout = setTimeout(function() {
+                map.setFilter('buildings-highlight', ['>', '_timestamp', (+d)/1000]);
+              }, 100);
+            })
+        );
+
+      });
 
 
     </script>

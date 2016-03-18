@@ -8,7 +8,7 @@ tilelive.load('mbtiles://./buildings.mbtiles', function(err, source) {
     if (err) {
         throw err;
     }
-    app.set('port', 7777);
+    app.set('port', 7778);
 
     app.use(function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
