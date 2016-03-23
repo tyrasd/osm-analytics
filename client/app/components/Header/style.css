@@ -1,0 +1,21 @@
+header {
+  width: 100%;
+  background-color: rgba(#fff, 0.78);
+  padding-left: 20px;
+  h1 {
+    font-size: 16px;
+    display: inline-block;
+  }
+  ul {
+    font-size: 16px;
+    display: inline-block;
+    padding-left: 25px;
+    li {
+      display: inline-block;
+      list-style-type: none;
+      & + li {
+        padding-left: 20px;
+      }
+    }
+  }
+}
