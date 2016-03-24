@@ -23,6 +23,13 @@ class About extends Component {
       style: glStyle,
       hash: false
     });
+
+    map.on("mousemove", function(e) {
+      map.featuresAt(e.point, { radius: 1, includeGeometry: true }, function(err, features) {
+        if (features.length)
+          console.log(features[0]);
+      })
+    });
   }
 }
 
