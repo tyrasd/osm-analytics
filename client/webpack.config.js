@@ -44,6 +44,10 @@ module.exports = {
         test: /\.(png|jpg)$/,
         loader: 'file-loader?name=assets/[name].[ext]'
       },
+      {
+        test: /\.(json)$/,
+        loader: 'json-loader'
+      },
     ],
   },
   resolve: {
