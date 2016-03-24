@@ -3,12 +3,6 @@ import { Link } from 'react-router'
 import style from './style.css'
 
 class Header extends Component {
-  handleSave(text) {
-    if (text.length) {
-      this.props.addTodo(text)
-    }
-  }
-
   render() {
     return (
       <header>

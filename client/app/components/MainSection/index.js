@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import Map from '../Map'
+import Header from '../Header'
 import style from './style.css'
 
 class MainSection extends Component {
@@ -7,12 +9,10 @@ class MainSection extends Component {
   }
 
   render() {
-    //const { todos, actions } = this.props
-    //const { filter } = this.state
-
     return (
       <section className="main">
-        <i>foo</i>
+        <Header />
+        <Map />
       </section>
     )
   }

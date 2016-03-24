@@ -8,10 +8,9 @@ import style from './style.css'
 
 class App extends Component {
   render() {
-    const { todos, actions, children } = this.props
+    const { actions, children } = this.props
     return (
       <div className={style.normal}>
-        <Header addTodo={actions.addTodo} />
         {children}
       </div>
     )

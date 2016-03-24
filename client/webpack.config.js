@@ -2,6 +2,7 @@ var precss = require('precss')
 var rucksack = require('rucksack-css')
 var webpack = require('webpack')
 var path = require('path')
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   context: path.join(__dirname, './app'),
@@ -23,10 +24,11 @@ module.exports = {
       {
         test: /\.css$/,
         include: /app/,
+        //loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader')
         loaders: [
           'style-loader',
-          //'css-loader?modules&sourceMap&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
-          'css-loader?sourceMap',
+          //'css-loader?sourceMap',
+          'css-loader',
           'postcss-loader'
         ]
       },
@@ -37,6 +39,10 @@ module.exports = {
           'react-hot',
           'babel-loader'
         ]
+      },
+      {
+        test: /\.(png|jpg)$/,
+        loader: 'file-loader?name=assets/[name].[ext]'
       },
     ],
   },
@@ -53,7 +59,8 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js'),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development') }
-    })
+    }),
+    //new ExtractTextPlugin("style.css")
   ],
   devServer: {
     contentBase: './client',

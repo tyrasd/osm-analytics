@@ -1,10 +1,11 @@
 header {
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   right: 0;
   height: 52px;
-  background-color: rgba(#888, 0.78);
+  background-color: rgba(#fff, 0.78);
   /*rgba(#fff, 0.78);*/
   h1 {
     display: inline-block;
