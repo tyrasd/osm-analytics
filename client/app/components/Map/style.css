@@ -6,3 +6,20 @@ div#map {
    background-color: #def;
    z-index: -1;
 }
+
+button.outline {
+  position: absolute;
+  top: 72px;
+  left: 200px;
+}
+button.filter {
+  position: absolute;
+  top: 72px;
+  right: 90px;
+}
+button.overlay {
+  position: absolute;
+  top: 72px;
+  right: 25px;
+  width: 50px;
+}

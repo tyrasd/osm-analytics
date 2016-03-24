@@ -5,7 +5,12 @@ import glStyle from './buildings.json'
 class About extends Component {
   render() {
     return (
+      <div className="tmp">
       <div id='map'></div>
+      <button className='outline'>Outline Custom Area</button>
+      <button className='filter'>Filter Map Features</button>
+      <button className='overlay'>…</button>
+      </div>
     )
   }
 
