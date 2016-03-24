@@ -9,4 +9,4 @@ Functionality
 
 ### Mockups
 
-![mockup screenshot](https://github.com/hotosm/osm-dat-frontend/raw/gh-pages/mockup.jpg)
+![mockup screenshot](https://github.com/hotosm/osm-dat-frontend/raw/master/mockup.jpg)
