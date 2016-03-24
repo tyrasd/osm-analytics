@@ -14,8 +14,8 @@ class Header extends Component {
       <header>
         <h1>OSM Analytics Tool</h1>
         <ul>
-          <li><Link to="/" activeClassName="active">Analysis Map</Link></li>
-          <li><Link to="/about" activeClassName="active">About</Link></li>
+          <li><Link to="/" className="link" activeClassName="active">Analysis Map</Link></li>
+          <li><Link to="/about" className="link" activeClassName="active">About</Link></li>
         </ul>
       </header>
     )
