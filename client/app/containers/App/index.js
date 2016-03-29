@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import Header from '../../components/Header'
 import MainSection from '../../components/MainSection'
-import * as Actions from '../../actions/index.js'
+import * as FilterActions from '../../actions/filters'
 import style from './style.css'
 
 class App extends Component {
@@ -19,13 +19,13 @@ class App extends Component {
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos
+    filters: state.filters
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(Actions, dispatch)
+    actions: bindActionCreators(FilterActions, dispatch)
   }
 }
 

@@ -22,4 +22,7 @@ button.overlay {
   top: 72px;
   right: 25px;
   width: 50px;
+  background-image: url("../../assets/overlays.svg");
+  background-position: center;
+  background-repeat: no-repeat;
 }

@@ -15,7 +15,7 @@ export default function configure(initialState) {
   )(createDevStore)
 
   const createPersistentStore = compose(
-    persistState(['todos'] /*paths, config*/)
+    persistState(['filters'] /*paths, config*/)
   )(createStoreWithMiddleware)
 
 
