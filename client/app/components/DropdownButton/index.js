@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 import style from './style.css'
-import Dropdown from 'rc-dropdown';
-import Menu, { Item as MenuItem, Divider } from 'rc-menu';
+import Dropdown from 'rc-dropdown'
+import Menu, { Item as MenuItem, Divider } from 'rc-menu'
 
 class DropdownButton extends Component {
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      visible: false
-    }
+  state = {
+    visible: false
   }
 
   render() {

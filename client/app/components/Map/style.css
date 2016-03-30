@@ -7,10 +7,28 @@ div#map {
    z-index: -1;
 }
 
+div.search {
+  position: absolute;
+  top: 72px;
+  left: 36px;
+}
+
+span.search-alternative {
+  position: absolute;
+  display: block;
+  color: #505254;
+  top: 72px;
+  left: 340px;
+  width: 45px;
+  line-height: 35px;
+  text-align: center;
+  pointer-events: none;
+}
+
 button.outline {
   position: absolute;
   top: 72px;
-  left: 200px;
+  left: 390px;
 }
 button.filter {
   position: absolute;
