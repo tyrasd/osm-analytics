@@ -1,6 +1,5 @@
-
 import { compose, createStore, applyMiddleware } from 'redux'
-import persistState from 'redux-localstorage'
+//import persistState from 'redux-localstorage'
 
 import { logger } from '../middleware'
 import rootReducer from '../reducers'
@@ -14,12 +13,11 @@ export default function configure(initialState) {
     logger
   )(createDevStore)
 
-  const createPersistentStore = compose(
-    persistState(['filters'] /*paths, config*/)
-  )(createStoreWithMiddleware)
+  //const createPersistentStore = compose(
+  //  persistState(['filters'] /*paths, config*/)
+  //)(createStoreWithMiddleware)
 
-
-  const store = createPersistentStore(rootReducer, initialState)
+  const store = createStoreWithMiddleware(rootReducer, initialState)
 
   if (module.hot) {
     module.hot.accept('../reducers', () => {

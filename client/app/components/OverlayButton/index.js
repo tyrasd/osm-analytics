@@ -20,7 +20,7 @@ class OverlayButton extends Component {
   render() {
     var btn = <button className='overlay'></button>
     return (
-      <DropdownButton options={overlays} btnElement={btn} onSelectionChange={() => {}}/>
+      <DropdownButton options={overlays} selectedKeys={['number']} btnElement={btn} onSelectionChange={() => {}}/>
     )
   }
 }

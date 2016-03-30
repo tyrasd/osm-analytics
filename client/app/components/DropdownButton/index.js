@@ -13,7 +13,14 @@ class DropdownButton extends Component {
 
   render() {
     const menu = (
-      <Menu multiple={this.props.multiple} onClick={onClick.bind(this)} onSelect={onSelect.bind(this)} onDeselect={onSelect.bind(this)} className={this.props.multiple ? 'checkboxes' : ''}>
+      <Menu
+        multiple={this.props.multiple}
+        selectedKeys={this.props.selectedKeys}
+        onClick={onClick.bind(this)}
+        onSelect={onSelect.bind(this)}
+        onDeselect={onSelect.bind(this)}
+        className={this.props.multiple ? 'checkboxes' : ''}
+      >
         {this.props.options.map(option => (
           option.type === 'divider'
             ? <Divider />

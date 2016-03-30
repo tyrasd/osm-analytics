@@ -3,14 +3,18 @@ import style from './style.css'
 import glStyle from './buildings.json'
 import OverlayButton from '../OverlayButton/index.js'
 import FilterButton from '../FilterButton/index.js'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as FilterActions from '../../actions/filters'
 
-class About extends Component {
+class Map extends Component {
   render() {
+    const { filters, actions } = this.props
     return (
       <div className="tmp">
       <div id="map"></div>
       <button className="outline">Outline Custom Area</button>
-      <FilterButton />
+      <FilterButton enabledFilters={filters} {...actions}/>
       <OverlayButton />
       </div>
     )
@@ -40,4 +44,19 @@ class About extends Component {
   }
 }
 
-export default About
+function mapStateToProps(state) {
+  return {
+    filters: state.filters
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(FilterActions, dispatch)
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Map)

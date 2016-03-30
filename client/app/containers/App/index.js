@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import Header from '../../components/Header'
 import MainSection from '../../components/MainSection'
-import * as FilterActions from '../../actions/filters'
 import style from './style.css'
 
 class App extends Component {
@@ -17,19 +14,4 @@ class App extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    filters: state.filters
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(FilterActions, dispatch)
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App)
+export default App
