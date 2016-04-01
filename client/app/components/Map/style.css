@@ -44,3 +44,39 @@ button.overlay {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* leaflet stuff */
+.leaflet-vertex-icon {
+  background-color: white;
+  border-radius: 6px;
+  border: 2px solid gray;
+}
+
+.leaflet-middle-icon {
+  background-color: gray;
+  border-radius: 4px;
+  border: 0;
+}
+
+.leaflet-bottom {
+  bottom: 212px;
+  &.leaflet-right .leaflet-control-zoom {
+    margin-right: 25px;
+    margin-bottom: 20px;
+  }
+}
+.leaflet-control-zoom {
+  a {
+    background-color: #364B52;
+    opacity: 0.4;
+    color: white;
+    &:hover {
+      opacity: 0.67;
+    }
+  }
+}
+
+/* mapboxgl stuff */
+.mapboxgl-canvas-container canvas {
+  transform: none !important;
+}

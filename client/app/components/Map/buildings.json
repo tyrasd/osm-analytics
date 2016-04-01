@@ -16,32 +16,9 @@
       ],
       "minzoom": 13,
       "maxzoom": 14
-    },
-    "mapbox://mapbox.satellite": {
-      "url": "mapbox://mapbox.satellite",
-      "type": "raster"
     }
   },
   "layers": [{
-    "id": "background",
-    "type": "background",
-    "paint": {
-      "background-color": "#eeeeee"
-    }
-  }, {
-    "type": "raster",
-    "paint": {
-      "raster-opacity": 0.35,
-      "raster-brightness-min": 0,
-      "raster-brightness-max": 1
-    },
-    "layout": {
-      "visibility": "visible"
-    },
-    "id": "mapbox-mapbox-satellite",
-    "source": "mapbox://mapbox.satellite",
-    "interactive": true
-  }, {
     "id": "buildings-raw",
     "interactive": true,
     "type": "fill",
