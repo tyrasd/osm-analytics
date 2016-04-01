@@ -24,6 +24,8 @@
     "file-loader": "^0.8.5",
     "fuse.js": "^2.2.0",
     "json-loader": "^0.5.4",
+    "lodash": "^4.7.0",
+    "polyline": "^0.2.0",
     "postcss-loader": "^0.8.1",
     "postcss-nested": "^1.0.0",
     "precss": "^1.4.0",

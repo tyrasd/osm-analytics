@@ -8,6 +8,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as FilterActions from '../../actions/filters'
 import { bboxPolygon } from 'turf'
+import { debounce } from 'lodash'
+import polyline from 'polyline'
 
 // tmp: replace with action
 import { createHashHistory } from 'history'
@@ -29,7 +31,7 @@ class Map extends Component {
   render() {
     const { filters, actions } = this.props
     return (
-      <div>{JSON.stringify(this.props)}
+      <div>
         <div id="map"></div>
         <SearchBox className="searchbox" />
         <span className="search-alternative">or</span>
@@ -85,7 +87,6 @@ function geojsonPolygonToLeaflet(geometry) {
 
 function setViewportRegion() {
   // tmp: replace with action
-  console.log("asd")
   history.replace(
     '/show/bbox:'
     +map.getBounds()
@@ -95,6 +96,20 @@ function setViewportRegion() {
     .map(Number)
     .map(x => x.toFixed(5))
     .join(',')
+  )
+}
+
+function setCustomRegion() {
+  // tmp: replace with action
+  if (!boundsLayer) {
+    throw new Error('expected bounds layer object')
+  }
+  console.log(boundsLayer.getLatLngs(), boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng]))
+  history.replace(
+    '/show/polygon:'
+    +polyline.encode(
+      boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
+    )
   )
 }
 
@@ -112,6 +127,9 @@ function setRegion(region) {
     boundsLayerGeometry = geojsonPolygonToLeaflet(project.geometry)
   } else if (region.slice(0,5) === 'bbox:') {
     boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.slice(5).split(',').map(Number)).geometry)
+  } else if (region.slice(0,8) === 'polygon:') {
+    console.log(polyline.decode(region.slice(8)))
+    boundsLayerGeometry = [polyline.decode(region.slice(8))]
   } else {
     throw new Error('unknown region', region)
   }
@@ -121,15 +139,17 @@ function setRegion(region) {
     color: 'gray'
   }).addTo(map)
 
-  if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 1000) {
+  if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
     map.flyToBounds(boundsLayer.getBounds(), {
       paddingTopLeft: [20, 72],
       paddingBottomRight: [20, 141],
-      duration: 3.5
+      duration: 2.5
     })
   }
 
+
   boundsLayer.enableEdit()
+  map.on('editable:editing', debounce(setCustomRegion, 400))
 }
 
 
