@@ -9,21 +9,33 @@ import { connect } from 'react-redux'
 import * as FilterActions from '../../actions/filters'
 import { bboxPolygon } from 'turf'
 
+// tmp: replace with action
+import { createHashHistory } from 'history'
+var history = createHashHistory({ queryKey: false })
+// end tmp
+
+// data
+import hotProjects from '../../data/hotprojectsGeometry.json'
+
 // leaflet plugins
 import * as _leafletmapboxgljs from '../../libs/leaflet-mapbox-gl.js'
 import * as _leafleteditable from '../../libs/Leaflet.Editable.js'
+
+var map // Leaflet map object
+var glLayer // mapbox-gl layer
+var boundsLayer = null // selected region layer
 
 class Map extends Component {
   render() {
     const { filters, actions } = this.props
     return (
-      <div className="tmp">
-      <div id="map"></div>
-      <SearchBox className="searchbox" />
-      <span className="search-alternative">or</span>
-      <button className="outline">Outline Custom Area</button>
-      <FilterButton enabledFilters={filters} {...actions}/>
-      <OverlayButton />
+      <div>{JSON.stringify(this.props)}
+        <div id="map"></div>
+        <SearchBox className="searchbox" />
+        <span className="search-alternative">or</span>
+        <button className="outline" onClick={setViewportRegion}>Outline Custom Area</button>
+        <FilterButton enabledFilters={filters} {...actions}/>
+        <OverlayButton />
       </div>
     )
   }
@@ -34,7 +46,7 @@ class Map extends Component {
       //glStyle.sources['osm-buildings-raw'].tiles[0] = glStyle.sources['osm-buildings-raw'].tiles[0].replace('52.50.120.37', 'localhost')
     }
 
-    var map = L.map(
+    map = L.map(
       'map', {
       editable: true,
       minZoom: 0
@@ -47,28 +59,79 @@ class Map extends Component {
     map.zoomControl.setPosition('bottomright')
 
     var token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
-    var gl = L.mapboxGL({
+    glLayer = L.mapboxGL({
       updateInterval: 0,
       accessToken: token,
       style: glStyle,
       hash: false
     }).addTo(map)
 
-    var bounds = L.polygon(bboxPolygon(map.getBounds().pad(-0.15).toBBoxString().split(',').map(Number)).geometry.coordinates.map(ring => ring.map(c => [c[1],c[0]])), {
-      weight: 1,
-      color: 'gray'
-    }).addTo(map).enableEdit()
-    /*var polyline = L.polygon([[0,0],[1,0],[1,1],[0,1],[0,0]]).addTo(map)
-    polyline.enableEdit()*/
-
-    /*map.on("mousemove", function(e) {
-      map.featuresAt(e.point, { radius: 1, includeGeometry: true }, function(err, features) {
-        if (features.length)
-          console.log(features[0]);
-      })
-    });*/
+    if (this.props.region) {
+      setRegion(this.props.region)
+    }
   }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.region !== this.props.region) {
+      setRegion(nextProps.region)
+    }
+  }
+
 }
+
+function geojsonPolygonToLeaflet(geometry) {
+  return geometry.coordinates.map(ring => ring.map(c => [c[1],c[0]]))
+}
+
+function setViewportRegion() {
+  // tmp: replace with action
+  console.log("asd")
+  history.replace(
+    '/show/bbox:'
+    +map.getBounds()
+    .pad(-0.15)
+    .toBBoxString()
+    .split(',')
+    .map(Number)
+    .map(x => x.toFixed(5))
+    .join(',')
+  )
+}
+
+function setRegion(region) {
+  if (boundsLayer !== null) {
+    map.removeLayer(boundsLayer)
+  }
+  var boundsLayerGeometry
+  if (region.slice(0,4) === 'hot:') {
+    let projectId = +region.slice(4)
+    let project = hotProjects.features.filter(p => p.id === projectId)[0]
+    if (!project) {
+      throw new Error('unknown hot project', projectId)
+    }
+    boundsLayerGeometry = geojsonPolygonToLeaflet(project.geometry)
+  } else if (region.slice(0,5) === 'bbox:') {
+    boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.slice(5).split(',').map(Number)).geometry)
+  } else {
+    throw new Error('unknown region', region)
+  }
+
+  boundsLayer = L.polygon(boundsLayerGeometry, {
+    weight: 1,
+    color: 'gray'
+  }).addTo(map)
+
+  if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 1000) {
+    map.flyToBounds(boundsLayer.getBounds(), {
+      paddingTopLeft: [20, 72],
+      paddingBottomRight: [20, 141],
+      duration: 3.5
+    })
+  }
+
+  boundsLayer.enableEdit()
+}
+
 
 function mapStateToProps(state) {
   return {

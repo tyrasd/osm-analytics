@@ -5,6 +5,11 @@ import Autosuggest from 'react-autosuggest'
 import hotProjects from '../../data/hotprojects.json'
 import Fuse from 'fuse.js'
 
+// tmp: replace with action
+import { createHashHistory } from 'history'
+var history = createHashHistory({ queryKey: false })
+// end tmp
+
 function fuse (data) {
   return new Fuse(data, {
     keys: ['name'],
@@ -26,23 +31,8 @@ class SearchBox extends Component {
     if (event.which === 13) {
       // enter key
       let best = this.getSuggestions(this.state.currentValue)[0]
-      /*if (!best || !best.name) {
-        var node = React.findDOMNode(this.refs.search);
-        // Remove error class.
-        node.className = node.className.replace(/ ?no-results/, '');
-        // Add it back on next tick so that css animation is triggered.
-        setTimeout(function () { node.className += ' no-results'; }, 1);
-        return;
-      }*/
-      // if the value in the search box exactly equals the best suggestion
-      // then just go there.
-      if (this.state.currentValue === best.name) {
-        this.go(best)
-      } else if (best.name) {
-      // otherwise, complete the value in the input, so that hitting enter
-      // again will navigate
-        this.setState({currentValue: best.name})
-      }
+      this.setState({currentValue: best.name})
+      this.go(best)
     }
   }
   getSuggestions(input, callback) {
@@ -62,11 +52,11 @@ class SearchBox extends Component {
     return suggestions
   }
   go (where) {
-    console.log('`````', where)
+    // tmp: replace with action
+    history.replace('/show/hot:'+where.id)
   }
 
   render() {
-    console.log(this.state)
     return (
       <div className="search">
         <Autosuggest
