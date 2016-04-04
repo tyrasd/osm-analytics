@@ -23,14 +23,14 @@ var boundsLayer = null // selected region layer
 
 class Map extends Component {
   render() {
-    const { filters, actions } = this.props
+    const { map, actions } = this.props
     return (
       <div>
         <div id="map"></div>
         <SearchBox className="searchbox" {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
-        <FilterButton enabledFilters={filters} {...actions}/>
+        <FilterButton enabledFilters={map.filters} {...actions}/>
         <OverlayButton />
       </div>
     )
@@ -65,12 +65,18 @@ class Map extends Component {
     if (this.props.region) {
       this.props.actions.setRegionFromUrl(this.props.region)
     }
+    if (this.props.filters) {
+      this.props.actions.setFiltersFromUrl(this.props.filters)
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     // ceck for changed url parameters
     if (nextProps.region !== this.props.region) {
       this.props.actions.setRegionFromUrl(nextProps.region)
+    }
+    if (nextProps.filters !== this.props.filters) {
+      this.props.actions.setFiltersFromUrl(nextProps.filters)
     }
     // check for changed map parameters
     if (nextProps.map.region !== this.props.map.region) {

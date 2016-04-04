@@ -12,7 +12,10 @@ class MainSection extends Component {
     return (
       <section className="main">
         <Header />
-        <Map region={this.props.routeParams.region} />
+        <Map
+          region={this.props.routeParams.region}
+          filters={this.props.routeParams.filters}
+        />
       </section>
     )
   }

@@ -24,6 +24,18 @@ class FilterButton extends Component {
         onSelectionChange={handleDropdownChanges.bind(this)} />
     )
   }
+
+  /*componentDidMount() {
+    if (!this.props.enabledFilters) {
+      this.props.enabledFilters = []
+    } else {
+      var allowedFilters = {}
+      filters.forEach(f => { allowedFilters[f.id] = true })
+      this.setProps({
+        enabledFilters: this.props.enabledFilters.filter(f => allowedFilters[f])
+      })
+    }
+  }*/
 }
 
 function handleDropdownChanges(selectedFilters) {

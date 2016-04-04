@@ -13,15 +13,14 @@ const initialState = {
 
 export default handleActions({
   'enable filter' (state, action) {
+    var newState
     if (state.filters.indexOf(action.payload) === -1) {
-      return {
+      newState = {
         filters: state.filters.concat(action.payload),
         region: state.region
       }
-    }
-    var newState = {
-      filters: state.filters,
-      region: state.region
+    } else {
+      newState = state
     }
     updateURL(newState)
     return newState
@@ -34,6 +33,18 @@ export default handleActions({
     updateURL(newState)
     return newState
   },
+  'set filters from url' (state, action) {
+    if (action.payload !== undefined){
+      return {
+        filters: action.payload !== 'none'
+          ? action.payload.split(',')
+          : [],
+        region: state.region
+      }
+    }
+    return state
+  },
+
   'set region' (state, action) {
     var newState = {
       filters: state.filters,
@@ -43,22 +54,25 @@ export default handleActions({
     return newState
   },
   'set region from url' (state, action) {
-    var newState = {
+    return {
       filters: state.filters,
       region: parseRegionFromUrl(action.payload)
     }
-    return newState
   }
 }, initialState)
 
 function updateURL(state) {
   var region = state.region
+  var filterPart = state.filters.length > 0
+    ? state.filters.sort().join(',')
+    : 'none'
   if (region !== null) {
     switch (region.type) {
     case 'bbox':
       history.replace('/show'
         +'/bbox:'
         +region.coords.map(x => x.toFixed(5)).join(',')
+        +'/'+filterPart
       )
     break
     case 'polygon':
@@ -69,12 +83,14 @@ function updateURL(state) {
             region.coords
           )
         )
+        +'/'+filterPart
       )
     break
     case 'hot':
       history.replace('/show'
         +'/hot:'
         +region.id
+        +'/'+filterPart
       )
     break
     default:
