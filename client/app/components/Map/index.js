@@ -28,7 +28,7 @@ class Map extends Component {
     return (
       <div>
         <div id="map" className={view+'View'}></div>
-        <SearchBox className="searchbox" {...actions}/>
+        <SearchBox className="searchbox" selectedRegion={map.region} {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
         <FilterButton enabledFilters={map.filters} {...actions}/>

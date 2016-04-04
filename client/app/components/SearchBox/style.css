@@ -20,8 +20,10 @@ div.search > .react-autosuggest {
     border: 1px solid #BECAD6;
 
     li {
+      display: block;
       list-style: none;
       padding: 10px 20px;
+      cursor: pointer;
       &:hover {
         background-color: #F3F5F5;
       }

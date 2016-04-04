@@ -38,8 +38,9 @@ class SearchBox extends Component {
     })
     suggestions = suggestions.map(s => s.item)
 
-    if (input.match(/^\d+$/))
+    if (input.match(/^\d+$/)) {
       suggestions = hotProjects.filter(p => p.id === +input).concat(suggestions)
+    }
 
     if (callback) {
       callback(null, suggestions);
@@ -47,7 +48,7 @@ class SearchBox extends Component {
     return suggestions
   }
 
-  go (where) {
+  go(where) {
     this.props.setRegion({
       type: 'hot',
       id: where.id
@@ -74,6 +75,29 @@ class SearchBox extends Component {
         />
       </div>
     )
+  }
+
+  componentDidMount() {
+    if (this.props.selectedRegion) {
+      if (this.props.selectedRegion.type === 'hot') {
+        this.setState({
+          currentValue: hotProjects.find(p => p.id === this.props.selectedRegion.id).name
+        })
+      } else {
+        this.setState({ currentValue: '' })
+      }
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.selectedRegion) {
+      if (nextProps.selectedRegion.type === 'hot') {
+        this.setState({
+          currentValue: hotProjects.find(p => p.id === nextProps.selectedRegion.id).name
+        })
+      } else {
+        this.setState({ currentValue: '' })
+      }
+    }
   }
 }
 
