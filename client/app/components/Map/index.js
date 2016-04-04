@@ -6,15 +6,9 @@ import FilterButton from '../FilterButton/index.js'
 import SearchBox from '../SearchBox/index.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as FilterActions from '../../actions/filters'
+import * as MapActions from '../../actions/map'
 import { bboxPolygon } from 'turf'
 import { debounce } from 'lodash'
-import polyline from 'polyline'
-
-// tmp: replace with action
-import { createHashHistory } from 'history'
-var history = createHashHistory({ queryKey: false })
-// end tmp
 
 // data
 import hotProjects from '../../data/hotprojectsGeometry.json'
@@ -33,9 +27,9 @@ class Map extends Component {
     return (
       <div>
         <div id="map"></div>
-        <SearchBox className="searchbox" />
+        <SearchBox className="searchbox" {...actions}/>
         <span className="search-alternative">or</span>
-        <button className="outline" onClick={setViewportRegion}>Outline Custom Area</button>
+        <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
         <FilterButton enabledFilters={filters} {...actions}/>
         <OverlayButton />
       </div>
@@ -69,14 +63,78 @@ class Map extends Component {
     }).addTo(map)
 
     if (this.props.region) {
-      setRegion(this.props.region)
+      this.props.actions.setRegionFromUrl(this.props.region)
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    // ceck for changed url parameters
     if (nextProps.region !== this.props.region) {
-      setRegion(nextProps.region)
+      this.props.actions.setRegionFromUrl(nextProps.region)
     }
+    // check for changed map parameters
+    if (nextProps.map.region !== this.props.map.region) {
+      this.mapSetRegion(nextProps.map.region)
+    }
+  }
+
+  setViewportRegion() {
+    this.props.actions.setRegion({
+      type: 'bbox',
+      coords: map.getBounds()
+        .pad(-0.15)
+        .toBBoxString()
+        .split(',')
+        .map(Number)
+    })
+  }
+
+  setCustomRegion() {
+    // tmp: replace with action
+    if (!boundsLayer) {
+      throw new Error('expected bounds layer object')
+    }
+    this.props.actions.setRegion({
+      type: 'polygon',
+      coords: boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
+    })
+  }
+
+  mapSetRegion(region) {
+    if (boundsLayer !== null) {
+      map.removeLayer(boundsLayer)
+    }
+    var boundsLayerGeometry
+    if (region.type === 'hot') {
+      let projectId = region.id
+      let project = hotProjects.features.filter(p => p.id === projectId)[0]
+      if (!project) {
+        throw new Error('unknown hot project', projectId)
+      }
+      boundsLayerGeometry = geojsonPolygonToLeaflet(project.geometry)
+    } else if (region.type === 'bbox') {
+      boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.coords).geometry)
+    } else if (region.type === 'polygon') {
+      boundsLayerGeometry = region.coords
+    } else {
+      throw new Error('unknown region', region)
+    }
+
+    boundsLayer = L.polygon(boundsLayerGeometry, {
+      weight: 1,
+      color: 'gray'
+    }).addTo(map)
+
+    if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
+      map.flyToBounds(boundsLayer.getBounds(), {
+        paddingTopLeft: [20, 72],
+        paddingBottomRight: [20, 141],
+        duration: 2.5
+      })
+    }
+
+    boundsLayer.enableEdit()
+    map.on('editable:editing', debounce(::this.setCustomRegion, 400))
   }
 
 }
@@ -85,85 +143,16 @@ function geojsonPolygonToLeaflet(geometry) {
   return geometry.coordinates.map(ring => ring.map(c => [c[1],c[0]]))
 }
 
-function setViewportRegion() {
-  // tmp: replace with action
-  history.replace(
-    '/show/bbox:'
-    +map.getBounds()
-    .pad(-0.15)
-    .toBBoxString()
-    .split(',')
-    .map(Number)
-    .map(x => x.toFixed(5))
-    .join(',')
-  )
-}
-
-function setCustomRegion() {
-  // tmp: replace with action
-  if (!boundsLayer) {
-    throw new Error('expected bounds layer object')
-  }
-  console.log(boundsLayer.getLatLngs(), boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng]))
-  history.replace(
-    '/show/polygon:'
-    +encodeURIComponent(
-      polyline.encode(
-        boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
-      )
-    )
-  )
-}
-
-function setRegion(region) {
-  if (boundsLayer !== null) {
-    map.removeLayer(boundsLayer)
-  }
-  var boundsLayerGeometry
-  if (region.slice(0,4) === 'hot:') {
-    let projectId = +region.slice(4)
-    let project = hotProjects.features.filter(p => p.id === projectId)[0]
-    if (!project) {
-      throw new Error('unknown hot project', projectId)
-    }
-    boundsLayerGeometry = geojsonPolygonToLeaflet(project.geometry)
-  } else if (region.slice(0,5) === 'bbox:') {
-    boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.slice(5).split(',').map(Number)).geometry)
-  } else if (region.slice(0,8) === 'polygon:') {
-    console.log(polyline.decode(region.slice(8)))
-    boundsLayerGeometry = [polyline.decode(decodeURIComponent(region.slice(8)))]
-  } else {
-    throw new Error('unknown region', region)
-  }
-
-  boundsLayer = L.polygon(boundsLayerGeometry, {
-    weight: 1,
-    color: 'gray'
-  }).addTo(map)
-
-  if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
-    map.flyToBounds(boundsLayer.getBounds(), {
-      paddingTopLeft: [20, 72],
-      paddingBottomRight: [20, 141],
-      duration: 2.5
-    })
-  }
-
-
-  boundsLayer.enableEdit()
-  map.on('editable:editing', debounce(setCustomRegion, 400))
-}
-
 
 function mapStateToProps(state) {
   return {
-    filters: state.filters
+    map: state.map
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(FilterActions, dispatch)
+    actions: bindActionCreators(MapActions, dispatch)
   }
 }
 

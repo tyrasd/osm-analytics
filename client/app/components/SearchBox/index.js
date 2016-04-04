@@ -5,11 +5,6 @@ import Autosuggest from 'react-autosuggest'
 import hotProjects from '../../data/hotprojects.json'
 import Fuse from 'fuse.js'
 
-// tmp: replace with action
-import { createHashHistory } from 'history'
-var history = createHashHistory({ queryKey: false })
-// end tmp
-
 function fuse (data) {
   return new Fuse(data, {
     keys: ['name'],
@@ -51,9 +46,12 @@ class SearchBox extends Component {
     }
     return suggestions
   }
+
   go (where) {
-    // tmp: replace with action
-    history.replace('/show/hot:'+where.id)
+    this.props.setRegion({
+      type: 'hot',
+      id: where.id
+    })
   }
 
   render() {
