@@ -114,7 +114,7 @@ function parseRegionFromUrl(regionString) {
     case 'polygon':
       return {
         type: 'polygon',
-        coords: [polyline.decode(decodeURIComponent(regionContent))]
+        coords: polyline.decode(decodeURIComponent(regionContent))
       }
     break
     case 'hot':
