@@ -5,7 +5,6 @@ import style from './style.css'
 
 class App extends Component {
   render() {
-    console.log('-->', this.props.route, this.props.routeParams)
     const { actions, routeParams, children } = this.props
     return (
       <div className="main">

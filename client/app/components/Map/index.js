@@ -7,7 +7,7 @@ import SearchBox from '../SearchBox/index.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as MapActions from '../../actions/map'
-import { bboxPolygon } from 'turf'
+import { bboxPolygon, area, erase } from 'turf'
 import { debounce } from 'lodash'
 
 // data
@@ -55,6 +55,8 @@ class Map extends Component {
     }).addTo(map);
     map.zoomControl.setPosition('bottomright')
 
+    map.on('editable:editing', debounce(::this.setCustomRegion, 400))
+
     var token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
     glLayer = L.mapboxGL({
       updateInterval: 0,
@@ -98,10 +100,7 @@ class Map extends Component {
   }
 
   setCustomRegion() {
-    // tmp: replace with action
-    if (!boundsLayer) {
-      throw new Error('expected bounds layer object')
-    }
+    if (!boundsLayer) return
     this.props.actions.setRegion({
       type: 'polygon',
       coords: boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
@@ -109,7 +108,9 @@ class Map extends Component {
   }
 
   mapSetRegion(region) {
+    var oldGeometry = null
     if (boundsLayer !== null) {
+      oldGeometry = boundsLayer.toGeoJSON();
       map.removeLayer(boundsLayer)
     }
     if (region === null) return
@@ -133,24 +134,30 @@ class Map extends Component {
       weight: 1,
       color: 'gray'
     }).addTo(map)
+    boundsLayer.enableEdit()
 
     // set map view to region
-    let fitboundsFunc
-    if (moveDirectly) {
-      fitboundsFunc = ::map.fitBounds
-    } else if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
-      fitboundsFunc = ::map.flyToBounds
-    } else {
-      fitboundsFunc = () => {}
-    }
-    fitboundsFunc(boundsLayer.getBounds(), {
-      paddingTopLeft: [20, 72],
-      paddingBottomRight: [20, 141],
-      duration: 2.5
-    })
+    try { // geometry calculcation are a bit hairy for invalid geometries (which may happen during polygon editing)
+      let viewPort = bboxPolygon(map.getBounds().toBBoxString().split(',').map(Number))
+      let xorAreaViewPort = erase(viewPort, boundsLayer.toGeoJSON())
+      let fitboundsFunc
+      if (moveDirectly) {
+        fitboundsFunc = ::map.fitBounds
+        moveDirectly = false
+      } else if (
+        !xorAreaViewPort // new region fully includes viewport
+        || area(xorAreaViewPort) > area(viewPort)*(1-0.1) // region is small compared to current viewport (<10% of the area covered) or feature is outside current viewport
+      ) {
+        fitboundsFunc = ::map.flyToBounds
+      } else {
+        fitboundsFunc = () => {}
+      }
+      fitboundsFunc(boundsLayer.getBounds(), {
+        paddingTopLeft: [20, 72],
+        paddingBottomRight: [20, 141]
+      })
+    } catch(e) {}
 
-    boundsLayer.enableEdit()
-    map.on('editable:editing', debounce(::this.setCustomRegion, 400))
   }
 
 }
