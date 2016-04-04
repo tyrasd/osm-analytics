@@ -107,8 +107,10 @@ function setCustomRegion() {
   console.log(boundsLayer.getLatLngs(), boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng]))
   history.replace(
     '/show/polygon:'
-    +polyline.encode(
-      boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
+    +encodeURIComponent(
+      polyline.encode(
+        boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
+      )
     )
   )
 }
@@ -129,7 +131,7 @@ function setRegion(region) {
     boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.slice(5).split(',').map(Number)).geometry)
   } else if (region.slice(0,8) === 'polygon:') {
     console.log(polyline.decode(region.slice(8)))
-    boundsLayerGeometry = [polyline.decode(region.slice(8))]
+    boundsLayerGeometry = [polyline.decode(decodeURIComponent(region.slice(8)))]
   } else {
     throw new Error('unknown region', region)
   }
