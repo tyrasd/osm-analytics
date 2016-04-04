@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom'
 import React from 'react'
 
 import App from './containers/App'
-import About from './components/About'
+import AboutPage from './containers/AboutPage'
 import MainSection from './components/MainSection'
 import configure from './store'
 
@@ -14,22 +14,14 @@ const store = configure()
 const history = syncHistoryWithStore(useRouterHistory(createHashHistory)({ queryKey: false }), store)
 
 var routes = (
-  <Route name='app' path='' component={App}>
-    {/*<Route name='country view'
-      path='/show/:region/:filters/:overlay'
-      component={…}/>
-    <Route name='compare view'
-      path='/compare/:region/:times'
-      component={…}/>*/}
-    <Route name='country view'
-      path='/show/:region(/:filters)'
-      component={MainSection}/>
-    <Route name='landing page'
-      path='/about'
-      component={About} />
-    <Route name='default view'
-      path='/'
-      component={MainSection} />
+  <Route>
+    <Route name='landing page' path='/about' component={AboutPage} />
+    <Route name='country view' path='/show/:region(/:filters)' view='country' component={App}>
+      <Route path='' component={MainSection}/>
+    </Route>
+    <Route name='default view' path='/' view='default' component={App}>
+      <Route path='' component={MainSection} />
+    </Route>
   </Route>
 );
 

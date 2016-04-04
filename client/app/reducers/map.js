@@ -100,6 +100,9 @@ function updateURL(state) {
 }
 
 function parseRegionFromUrl(regionString) {
+  if (!regionString) {
+    return null
+  }
   const [ regionType, regionContent ] = regionString.split(':')
   switch (regionType) {
     case 'bbox':

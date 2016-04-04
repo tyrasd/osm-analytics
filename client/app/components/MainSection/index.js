@@ -9,14 +9,10 @@ class MainSection extends Component {
   }
 
   render() {
+    console.log('---->', this.props.route.foo)
     return (
-      <section className="main">
-        <Header />
-        <Map
-          region={this.props.routeParams.region}
-          filters={this.props.routeParams.filters}
-        />
-      </section>
+      <div>
+      </div>
     )
   }
 }

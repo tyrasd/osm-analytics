@@ -58,12 +58,9 @@ button.overlay {
   border: 0;
 }
 
-.leaflet-bottom {
-  bottom: 212px;
-  &.leaflet-right .leaflet-control-zoom {
-    margin-right: 25px;
-    margin-bottom: 20px;
-  }
+.leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  margin-right: 25px;
+  margin-bottom: 20px;
 }
 .leaflet-control-zoom {
   a {
@@ -75,6 +72,11 @@ button.overlay {
     }
   }
 }
+
+.countryView .leaflet-bottom {
+  margin-bottom: 212px;
+}
+
 
 /* mapboxgl stuff */
 .mapboxgl-canvas-container canvas {

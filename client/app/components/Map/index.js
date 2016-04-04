@@ -20,13 +20,14 @@ import * as _leafleteditable from '../../libs/Leaflet.Editable.js'
 var map // Leaflet map object
 var glLayer // mapbox-gl layer
 var boundsLayer = null // selected region layer
+var moveDirectly = false
 
 class Map extends Component {
   render() {
-    const { map, actions } = this.props
+    const { map, view, actions } = this.props
     return (
       <div>
-        <div id="map"></div>
+        <div id="map" className={view+'View'}></div>
         <SearchBox className="searchbox" {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
@@ -64,6 +65,7 @@ class Map extends Component {
 
     if (this.props.region) {
       this.props.actions.setRegionFromUrl(this.props.region)
+      moveDirectly = true
     }
     if (this.props.filters) {
       this.props.actions.setFiltersFromUrl(this.props.filters)
@@ -110,6 +112,7 @@ class Map extends Component {
     if (boundsLayer !== null) {
       map.removeLayer(boundsLayer)
     }
+    if (region === null) return
     var boundsLayerGeometry
     if (region.type === 'hot') {
       let projectId = region.id
@@ -131,13 +134,20 @@ class Map extends Component {
       color: 'gray'
     }).addTo(map)
 
-    if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
-      map.flyToBounds(boundsLayer.getBounds(), {
-        paddingTopLeft: [20, 72],
-        paddingBottomRight: [20, 141],
-        duration: 2.5
-      })
+    // set map view to region
+    let fitboundsFunc
+    if (moveDirectly) {
+      fitboundsFunc = ::map.fitBounds
+    } else if (map.getCenter().distanceTo(boundsLayer.getCenter()) > 10000) {
+      fitboundsFunc = ::map.flyToBounds
+    } else {
+      fitboundsFunc = () => {}
     }
+    fitboundsFunc(boundsLayer.getBounds(), {
+      paddingTopLeft: [20, 72],
+      paddingBottomRight: [20, 141],
+      duration: 2.5
+    })
 
     boundsLayer.enableEdit()
     map.on('editable:editing', debounce(::this.setCustomRegion, 400))
