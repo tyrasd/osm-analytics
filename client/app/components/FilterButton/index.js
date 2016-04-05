@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import DropdownButton from '../DropdownButton'
-import { filters } from '../../consts/options'
+import { filters } from '../../settings/options'
 
 
 class FilterButton extends Component {

@@ -2,16 +2,15 @@ import { handleActions } from 'redux-actions'
 import { createHashHistory } from 'history'
 import polyline from 'polyline'
 
-import { filters as filterOptions, overlays as overlayOptions } from '../consts/options'
+import { filters as filterOptions, overlays as overlayOptions } from '../settings/options'
+import defaults from '../settings/defaults'
 
 var history = createHashHistory({ queryKey: false })
 
 const initialState = {
   region: null,
-  filters: [
-    'buildings' // todo: make constants for this?
-  ],
-  overlay: 'recency' // todo: make constants for this?
+  filters: defaults.filters,
+  overlay: defaults.overlay
 }
 
 export default handleActions({

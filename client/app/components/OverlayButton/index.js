@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import DropdownButton from '../DropdownButton'
 
-import { overlays } from '../../consts/options'
+import { overlays } from '../../settings/options'
 
 
 class OverlayButton extends Component {
