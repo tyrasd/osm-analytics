@@ -12,6 +12,7 @@ class App extends Component {
         <Map
           region={routeParams.region}
           filters={routeParams.filters}
+          overlay={routeParams.overlay}
           view={this.props.route.view}
         />
         {children}

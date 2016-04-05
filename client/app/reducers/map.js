@@ -2,22 +2,43 @@ import { handleActions } from 'redux-actions'
 import { createHashHistory } from 'history'
 import polyline from 'polyline'
 
+import { filters as filterOptions, overlays as overlayOptions } from '../consts/options'
+
 var history = createHashHistory({ queryKey: false })
 
 const initialState = {
+  region: null,
   filters: [
     'buildings' // todo: make constants for this?
   ],
-  region: null
+  overlay: 'recency' // todo: make constants for this?
 }
 
 export default handleActions({
+  'set region' (state, action) {
+    var newState = {
+      region: action.payload,
+      filters: state.filters,
+      overlay: state.overlay
+    }
+    updateURL(newState)
+    return newState
+  },
+  'set region from url' (state, action) {
+    return {
+      region: parseRegionFromUrl(action.payload),
+      filters: state.filters,
+      overlay: state.overlay
+    }
+  },
+
   'enable filter' (state, action) {
     var newState
     if (state.filters.indexOf(action.payload) === -1) {
       newState = {
+        region: state.region,
         filters: state.filters.concat(action.payload),
-        region: state.region
+        overlay: state.overlay
       }
     } else {
       newState = state
@@ -27,36 +48,44 @@ export default handleActions({
   },
   'disable filter' (state, action) {
     var newState = {
+      region: state.region,
       filters: state.filters.filter(filter => filter !== action.payload),
-      region: state.region
+      overlay: state.overlay
     }
     updateURL(newState)
     return newState
   },
   'set filters from url' (state, action) {
-    if (action.payload !== undefined){
-      return {
-        filters: action.payload !== 'none'
-          ? action.payload.split(',')
-          : [],
-        region: state.region
-      }
+    if (action.payload !== undefined) return state
+    return {
+      region: state.region,
+      filters: action.payload !== 'none'
+        ? action.payload.split(',').filter(filter =>
+            filterOptions.some(filterOption =>
+              filterOption.id === filter
+            )
+          )
+        : [],
+      overlay: state.overlay
     }
-    return state
   },
 
-  'set region' (state, action) {
+  'set overlay' (state, action) {
     var newState = {
+      region: state.region,
       filters: state.filters,
-      region: action.payload
+      overlay: action.payload
     }
     updateURL(newState)
     return newState
   },
-  'set region from url' (state, action) {
+  'set overlay from url' (state, action) {
+    if (action.payload === undefined) return state
+    if (!overlayOptions.some(overlayOption => overlayOption.id === action.payload)) return state
     return {
+      region: state.region,
       filters: state.filters,
-      region: parseRegionFromUrl(action.payload)
+      overlay: action.payload
     }
   }
 }, initialState)
@@ -66,6 +95,7 @@ function updateURL(state) {
   var filterPart = state.filters.length > 0
     ? state.filters.sort().join(',')
     : 'none'
+  var overlayPart = state.overlay
   if (region !== null) {
     switch (region.type) {
     case 'bbox':
@@ -73,6 +103,7 @@ function updateURL(state) {
         +'/bbox:'
         +region.coords.map(x => x.toFixed(5)).join(',')
         +'/'+filterPart
+        +'/'+overlayPart
       )
     break
     case 'polygon':
@@ -84,6 +115,7 @@ function updateURL(state) {
           )
         )
         +'/'+filterPart
+        +'/'+overlayPart
       )
     break
     case 'hot':
@@ -91,6 +123,7 @@ function updateURL(state) {
         +'/hot:'
         +region.id
         +'/'+filterPart
+        +'/'+overlayPart
       )
     break
     default:

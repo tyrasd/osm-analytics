@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import style from './style.css'
 import glStyle from './buildings.json'
-import OverlayButton from '../OverlayButton/index.js'
-import FilterButton from '../FilterButton/index.js'
+import OverlayButton from '../OverlayButton'
+import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox/index.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -32,7 +32,7 @@ class Map extends Component {
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
         <FilterButton enabledFilters={map.filters} {...actions}/>
-        <OverlayButton />
+        <OverlayButton enabledOverlay={map.overlay} {...actions}/>
       </div>
     )
   }
@@ -72,6 +72,9 @@ class Map extends Component {
     if (this.props.filters) {
       this.props.actions.setFiltersFromUrl(this.props.filters)
     }
+    if (this.props.overlay) {
+      this.props.actions.setOverlayFromUrl(this.props.overlay)
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -81,6 +84,9 @@ class Map extends Component {
     }
     if (nextProps.filters !== this.props.filters) {
       this.props.actions.setFiltersFromUrl(nextProps.filters)
+    }
+    if (nextProps.overlay !== this.props.overlay) {
+      this.props.actions.setOverlayFromUrl(nextProps.overlay)
     }
     // check for changed map parameters
     if (nextProps.map.region !== this.props.map.region) {
