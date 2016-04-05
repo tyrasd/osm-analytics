@@ -1,21 +1,22 @@
 import React, { Component } from 'react'
 import Header from '../../components/Header'
 import Map from '../../components/Map'
+import Stats from '../../components/Stats'
 import style from './style.css'
 
 class App extends Component {
   render() {
-    const { actions, routeParams, children } = this.props
+    const { actions, routeParams, route } = this.props
     return (
       <div className="main">
-        <Header />
+        <Header/>
         <Map
           region={routeParams.region}
           filters={routeParams.filters}
           overlay={routeParams.overlay}
-          view={this.props.route.view}
+          view={route.view}
         />
-        {children}
+        {route.view === 'country' ? <Stats/> : ''}
       </div>
     )
   }

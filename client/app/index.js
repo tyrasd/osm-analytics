@@ -7,7 +7,6 @@ import React from 'react'
 
 import App from './containers/App'
 import AboutPage from './containers/AboutPage'
-import MainSection from './components/MainSection'
 import configure from './store'
 
 const store = configure()
@@ -15,13 +14,9 @@ const history = syncHistoryWithStore(useRouterHistory(createHashHistory)({ query
 
 var routes = (
   <Route>
-    <Route name='landing page' path='/about' component={AboutPage} />
-    <Route name='country view' path='/show/:region(/:filters(/:overlay))' view='country' component={App}>
-      <Route path='' component={MainSection}/>
-    </Route>
-    <Route name='default view' path='/' view='default' component={App}>
-      <Route path='' component={MainSection} />
-    </Route>
+    <Route name='landing page' path='/about' component={AboutPage}/>
+    <Route name='country view' path='/show/:region(/:filters(/:overlay))' view='country' component={App}/>
+    <Route name='default view' path='/' view='default' component={App}/>
   </Route>
 );
 

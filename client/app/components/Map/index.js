@@ -95,10 +95,18 @@ class Map extends Component {
   }
 
   setViewportRegion() {
+    var pixelBounds = map.getPixelBounds()
+    var paddedLatLngBounds = L.latLngBounds(
+      map.unproject(
+        pixelBounds.getBottomLeft().add([30,-(20+212)])
+      ),
+      map.unproject(
+        pixelBounds.getTopRight().subtract([30,-(70+52)])
+      )
+    ).pad(-0.15)
     this.props.actions.setRegion({
       type: 'bbox',
-      coords: map.getBounds()
-        .pad(-0.15)
+      coords: paddedLatLngBounds
         .toBBoxString()
         .split(',')
         .map(Number)
@@ -159,8 +167,8 @@ class Map extends Component {
         fitboundsFunc = () => {}
       }
       fitboundsFunc(boundsLayer.getBounds(), {
-        paddingTopLeft: [20, 72],
-        paddingBottomRight: [20, 141]
+        paddingTopLeft: [20, 10+52],
+        paddingBottomRight: [20, 10+212]
       })
     } catch(e) {}
 

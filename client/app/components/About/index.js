@@ -7,7 +7,7 @@ class About extends Component {
     return (
       <section className="about">
         <article>
-          <Header />
+          <Header/>
           <h1>Catchy Phrase That Let’s Users Know What This Site is About</h1>
           <p><button>Get Started</button></p>
         </article>
