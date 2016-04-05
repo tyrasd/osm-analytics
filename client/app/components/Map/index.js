@@ -9,9 +9,7 @@ import { connect } from 'react-redux'
 import * as MapActions from '../../actions/map'
 import { bboxPolygon, area, erase } from 'turf'
 import { debounce } from 'lodash'
-
-// data
-import hotProjects from '../../data/hotprojectsGeometry.json'
+import regionToCoords from './regionToCoords'
 
 // leaflet plugins
 import * as _leafletmapboxgljs from '../../libs/leaflet-mapbox-gl.js'
@@ -117,7 +115,7 @@ class Map extends Component {
     if (!boundsLayer) return
     this.props.actions.setRegion({
       type: 'polygon',
-      coords: boundsLayer.getLatLngs()[0].map(c => [c.lat, c.lng])
+      coords: boundsLayer.toGeoJSON().geometry.coordinates[0].slice(0,-1)
     })
   }
 
@@ -128,23 +126,7 @@ class Map extends Component {
       map.removeLayer(boundsLayer)
     }
     if (region === null) return
-    var boundsLayerGeometry
-    if (region.type === 'hot') {
-      let projectId = region.id
-      let project = hotProjects.features.filter(p => p.id === projectId)[0]
-      if (!project) {
-        throw new Error('unknown hot project', projectId)
-      }
-      boundsLayerGeometry = geojsonPolygonToLeaflet(project.geometry)
-    } else if (region.type === 'bbox') {
-      boundsLayerGeometry = geojsonPolygonToLeaflet(bboxPolygon(region.coords).geometry)
-    } else if (region.type === 'polygon') {
-      boundsLayerGeometry = region.coords
-    } else {
-      throw new Error('unknown region', region)
-    }
-
-    boundsLayer = L.polygon(boundsLayerGeometry, {
+    boundsLayer = L.polygon(regionToCoords(region, 'leaflet'), {
       weight: 1,
       color: 'gray'
     }).addTo(map)
@@ -174,10 +156,6 @@ class Map extends Component {
 
   }
 
-}
-
-function geojsonPolygonToLeaflet(geometry) {
-  return geometry.coordinates.map(ring => ring.map(c => [c[1],c[0]]))
 }
 
 
