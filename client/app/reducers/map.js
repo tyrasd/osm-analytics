@@ -55,7 +55,7 @@ export default handleActions({
     return newState
   },
   'set filters from url' (state, action) {
-    if (action.payload !== undefined) return state
+    if (action.payload === undefined) return state
     return {
       region: state.region,
       filters: action.payload !== 'none'
