@@ -26,8 +26,8 @@ class Map extends Component {
   render() {
     const { map, view, actions } = this.props
     return (
-      <div>
-        <div id="map" className={view+'View'}></div>
+      <div className={view+'View'}>
+        <div id="map"></div>
         <SearchBox className="searchbox" selectedRegion={map.region} {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
