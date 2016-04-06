@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Modal from 'react-modal';
 import { polygon } from 'turf'
 import Map from '../Map'
 import Header from '../Header'
@@ -11,10 +12,32 @@ import searchFeatures from './searchFeatures'
 import style from './style.css'
 
 
+const hotProjectsModalStyles = {
+  overlay: {
+    backgroundColor: 'rgba(60,60,60, 0.5)'
+  },
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    maxHeight: '350px',
+    maxWidth: '512px',
+    borderRadius: '4px',
+    paddingTop: '25px',
+    paddingBottom: '35px',
+    paddingLeft: '35px',
+    paddingRight: '35px'
+  }
+}
+
 class Stats extends Component {
   state = {
     features: [],
     hotProjects: [],
+    hotProjectsModalOpen: false,
     updating: false
   }
 
@@ -22,11 +45,22 @@ class Stats extends Component {
     // todo: loading animation if region is not yet fully loaded
     return (
       <div id="stats">
-        {this.state.features.length} buildings
-        <br/>
+        <ul className="metrics">
+          <li><span className="number">{this.state.features.length}</span><br/><span className="descriptor">Buildings</span></li>
+          <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
+        </ul>
         {this.state.updating ? 'updating…' : ''}
-        <br/>
-        {this.state.hotProjects.map(p => '#'+p.id+' '+p.properties.name).join(' – ')}
+        <Modal
+          isOpen={this.state.hotProjectsModalOpen}
+          onRequestClose={::this.closeHotModal}
+          style={hotProjectsModalStyles}>
+          <h3>HOT Projects</h3>
+          <ul className="hot-projects">
+          {this.state.hotProjects.map(p =>
+            <li><a className="link" href={"http://tasks.hotosm.org/project/"+p.id}>{'#'+p.id+' '+p.properties.name}</a></li>
+          )}
+          </ul>
+        </Modal>
       </div>
     )
   }
@@ -56,6 +90,16 @@ class Stats extends Component {
     const hotProjects = searchHotProjectsInRegion(region)
     this.setState({ hotProjects })
   }
+
+
+  openHotModal() {
+    this.setState({ hotProjectsModalOpen: true });
+  }
+
+  closeHotModal() {
+    this.setState({ hotProjectsModalOpen: false });
+  }
+
 }
 
 
