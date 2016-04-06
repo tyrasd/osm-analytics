@@ -42,12 +42,18 @@ class Stats extends Component {
   }
 
   render() {
+    var contributors = {}
+    this.state.features.forEach(f => {
+      contributors[f.properties._uid] = true
+    })
+    const numContribuors = Object.keys(contributors).length
     // todo: loading animation if region is not yet fully loaded
     return (
       <div id="stats">
         <ul className="metrics">
           <li><span className="number">{this.state.features.length}</span><br/><span className="descriptor">Buildings</span></li>
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
+          <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
         </ul>
         {this.state.updating ? 'updating…' : ''}
         <Modal
