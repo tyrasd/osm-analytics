@@ -53,7 +53,7 @@ class Map extends Component {
     }).addTo(map);
     map.zoomControl.setPosition('bottomright')
 
-    map.on('editable:editing', debounce(::this.setCustomRegion, 400))
+    map.on('editable:editing', debounce(::this.setCustomRegion, 200))
 
     var token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
     glLayer = L.mapboxGL({

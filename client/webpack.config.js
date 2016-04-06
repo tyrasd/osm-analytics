@@ -64,10 +64,16 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development') }
     }),
+    new webpack.DefinePlugin({
+      "global.GENTLY": false // https://github.com/visionmedia/superagent/wiki/Superagent-for-Webpack
+    }),
     //new ExtractTextPlugin("style.css")
   ],
   devServer: {
     contentBase: './client',
     hot: true
+  },
+  node: {
+    __dirname: true,
   }
 }
