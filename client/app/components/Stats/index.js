@@ -63,7 +63,7 @@ class Stats extends Component {
           <h3>HOT Projects</h3>
           <ul className="hot-projects">
           {this.state.hotProjects.map(p =>
-            <li><a className="link" href={"http://tasks.hotosm.org/project/"+p.id}>{'#'+p.id+' '+p.properties.name}</a></li>
+            <li key={p.id}><a className="link" href={"http://tasks.hotosm.org/project/"+p.id}>{'#'+p.id+' '+p.properties.name}</a></li>
           )}
           </ul>
         </Modal>

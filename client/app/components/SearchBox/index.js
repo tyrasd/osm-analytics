@@ -1,14 +1,18 @@
 import React, { Component } from 'react'
-import style from './style.css'
-//import Autocomplete from 'react-autocomplete'
+import * as request from 'superagent'
+import osmtogeojson from 'osmtogeojson'
+import { simplify, polygon } from 'turf'
+import Fuse from 'fuse.js'
 import Autosuggest from 'react-autosuggest'
 import hotProjects from '../../data/hotprojects.json'
-import Fuse from 'fuse.js'
+import style from './style.css'
 
 function fuse (data) {
   return new Fuse(data, {
     keys: ['name'],
-    include: ['score']
+    include: ['score'],
+    threshold: 0.4,
+    shouldSort: false
   });
 }
 
@@ -24,10 +28,15 @@ class SearchBox extends Component {
   }
   onKeyPress(event) {
     if (event.which === 13) {
+      var regionName = this.state.currentValue
       // enter key
-      let best = this.getSuggestions(this.state.currentValue)[0]
-      this.setState({currentValue: best.name})
-      this.go(best)
+      if (regionName.match(/^\d+$/)) {
+        let best = this.getSuggestions(regionName)[0]
+        this.setState({currentValue: best.name})
+        this.go(best)
+      } else {
+        this.goOSM(regionName)
+      }
     }
   }
   getSuggestions(input, callback) {
@@ -52,6 +61,46 @@ class SearchBox extends Component {
     this.props.setRegion({
       type: 'hot',
       id: where.id
+    })
+  }
+  goOSM(where) {
+    var setRegion = this.props.setRegion
+    request
+    .get('https://nominatim.openstreetmap.org/search')
+    .query({
+      format: 'json',
+      q: where
+    })
+    .end(function(err, res) {
+      if (err) throw new Error(err)
+      var hits = res.body.filter(r => r.osm_type !== 'node')
+      if (hits.length === 0) throw new Error('nothing found for place name '+regionName)
+      request
+      .get('https://overpass-api.de/api/interpreter')
+      .query({
+        data: '[out:json][timeout:3];'+hits[0].osm_type+'('+hits[0].osm_id+');out geom;'
+      })
+      .end(function(err, res) {
+        if (err) throw new Error(err)
+        let osmFeature = osmtogeojson(res.body).features[0]
+        if (!(osmFeature.geometry.type === 'Polygon' || osmFeature.geometry.type === 'MultiPolygon')) throw new Error('invalid geometry')
+        let coords = osmFeature.geometry.coordinates[0]
+        if (osmFeature.geometry.type === 'MultiPolygon') coords = coords[0]
+        const maxNodeCount = 40 // todo: setting
+        if (coords.length > maxNodeCount) {
+          for (let simpl = 0.00001; simpl<1; simpl*=1.4) {
+            let simplifiedFeature = simplify(polygon([coords]), simpl)
+            if (simplifiedFeature.geometry.coordinates[0].length <= maxNodeCount) {
+              coords = simplifiedFeature.geometry.coordinates[0]
+              break;
+            }
+          }
+        }
+        setRegion({
+          type: 'polygon',
+          coords: coords.slice(0,-1)
+        })
+      })
     })
   }
 
