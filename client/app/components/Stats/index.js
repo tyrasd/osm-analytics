@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import { polygon } from 'turf'
 import Map from '../Map'
 import Header from '../Header'
+import Histogram from './chart'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 //import * as StatsActions from '../../actions/stats'
@@ -67,6 +68,7 @@ class Stats extends Component {
           )}
           </ul>
         </Modal>
+        <Histogram data={this.state.features}/>
       </div>
     )
   }
