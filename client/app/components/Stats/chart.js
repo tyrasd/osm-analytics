@@ -1,5 +1,9 @@
 import React, { Component, PropTypes } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import vg from 'vega'
+import { debounce } from 'lodash'
+import * as StatsActions from '../../actions/stats'
 
 class Histogram extends Component {
   state = {
@@ -15,11 +19,34 @@ class Histogram extends Component {
         el: this.refs.chartContainer,
         renderer: 'svg'
       })
+
+      vis.onSignal('brush_start', debounce(::this.setTimeFilter, 10))
+      vis.onSignal('brush_end', debounce(::this.setTimeFilter, 200))
+
       vis.data('activity').insert([]) // actual data comes later ^^
       vis.update()
       this.setState({ vis })
     })
   }
+
+  setTimeFilter(signal, time) {
+    if (signal === 'brush_start') {
+      this.setState({
+        startTime: time
+      })
+    } else {
+      if (this.state.startTime - time === 0) {
+      // startTime === endTime -> reset time filter
+        this.props.actions.setTimeFilter(null)
+      } else {
+        this.props.actions.setTimeFilter([
+          Math.min(this.state.startTime, time),
+          Math.max(this.state.startTime, time)
+        ])
+      }
+    }
+  }
+
 
   componentDidUpdate() {
     const { vis } = this.state
@@ -135,7 +162,7 @@ class Histogram extends Component {
             },
             "update": {
               "fill": [
-                { "test": "brush_start==brush_end || inrange(datum.x, brush_start, brush_end-1)",
+                { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
                   "value": "steelblue"
                 },
                 {"value": "red"}
@@ -148,4 +175,20 @@ class Histogram extends Component {
   }
 }
 
-export default Histogram
+
+function mapStateToProps(state) {
+  return {
+    // todo: handle filters & overlays via state.map.*
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(StatsActions, dispatch)
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Histogram)

@@ -6,7 +6,6 @@ import Header from '../Header'
 import Histogram from './chart'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-//import * as StatsActions from '../../actions/stats'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures from './searchFeatures'
@@ -44,7 +43,15 @@ class Stats extends Component {
 
   render() {
     var contributors = {}
-    this.state.features.forEach(f => {
+    var features = this.state.features
+    if (this.props.stats.timeFilter !== null) {
+      features = features.filter(feature =>
+        feature.properties._timestamp >= this.props.stats.timeFilter[0]/1000
+        &&
+        feature.properties._timestamp <= this.props.stats.timeFilter[1]/1000
+      )
+    }
+    features.forEach(f => {
       contributors[f.properties._uid] = true
     })
     const numContribuors = Object.keys(contributors).length
@@ -52,11 +59,12 @@ class Stats extends Component {
     return (
       <div id="stats">
         <ul className="metrics">
-          <li><span className="number">{this.state.features.length}</span><br/><span className="descriptor">Buildings</span></li>
+          <li><span className="number">{features.length}</span><br/><span className="descriptor">Buildings</span></li>
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
           <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
         </ul>
         {this.state.updating ? 'updating…' : ''}
+
         <Modal
           isOpen={this.state.hotProjectsModalOpen}
           onRequestClose={::this.closeHotModal}
@@ -113,14 +121,13 @@ class Stats extends Component {
 
 function mapStateToProps(state) {
   return {
-    map: state.map
+    map: state.map,
+    stats: state.stats
   }
 }
 
 function mapDispatchToProps(dispatch) {
-  return {
-    //actions: bindActionCreators(StatsActions, dispatch)
-  }
+  return {}
 }
 
 export default connect(
