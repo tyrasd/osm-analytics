@@ -84,8 +84,11 @@ class SearchBox extends Component {
         if (err) throw new Error(err)
         let osmFeature = osmtogeojson(res.body).features[0]
         if (!(osmFeature.geometry.type === 'Polygon' || osmFeature.geometry.type === 'MultiPolygon')) throw new Error('invalid geometry')
-        let coords = osmFeature.geometry.coordinates[0]
-        if (osmFeature.geometry.type === 'MultiPolygon') coords = coords[0]
+        let coords = osmFeature.geometry.coordinates
+        if (osmFeature.geometry.type === 'MultiPolygon') {
+          coords = coords.sort((p1,p2) => p2[0].length - p1[0].length)[0] // choose polygon with the longest outer ring
+        }
+        coords = coords[0]
         const maxNodeCount = 40 // todo: setting
         if (coords.length > maxNodeCount) {
           for (let simpl = 0.00001; simpl<1; simpl*=1.4) {
