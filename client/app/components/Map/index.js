@@ -90,6 +90,10 @@ class Map extends Component {
     if (nextProps.map.region !== this.props.map.region) {
       this.mapSetRegion(nextProps.map.region)
     }
+    // check for changed time filter
+    if (nextProps.stats.timeFilter !== this.props.stats.timeFilter) {
+      this.setTimeFilter(nextProps.stats.timeFilter)
+    }
   }
 
   setViewportRegion() {
@@ -153,7 +157,24 @@ class Map extends Component {
         paddingBottomRight: [20, 10+212]
       })
     } catch(e) {}
+  }
 
+  setTimeFilter(timeFilter) {
+    if (timeFilter === null) {
+      // reset time filter
+      glLayer._glMap.setFilter('buildings-raw-highlight', ["==", "_timestamp", -1])
+      //glStyle.layers[1].filter = ["==", "_timestamp", -1]
+    } else {
+      glLayer._glMap.setFilter('buildings-raw-highlight', ["all",
+        [">=", "_timestamp", timeFilter[0]],
+        ["<=", "_timestamp", timeFilter[1]]
+      ])
+      /*glStyle.layers[1].filter = ["all",
+        [">=", "_timestamp", timeFilter[0]],
+        ["<=", "_timestamp", timeFilter[1]]
+      ]*/
+    }
+    //glLayer._glMap.setStyle(glStyle)
   }
 
 }
@@ -161,7 +182,8 @@ class Map extends Component {
 
 function mapStateToProps(state) {
   return {
-    map: state.map
+    map: state.map,
+    stats: state.stats
   }
 }
 

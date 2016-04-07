@@ -40,8 +40,8 @@ class Histogram extends Component {
         this.props.actions.setTimeFilter(null)
       } else {
         this.props.actions.setTimeFilter([
-          Math.min(this.state.startTime, time),
-          Math.max(this.state.startTime, time)
+          Math.min(this.state.startTime, time)/1000,
+          Math.max(this.state.startTime, time)/1000
         ])
       }
     }
@@ -163,9 +163,9 @@ class Histogram extends Component {
             "update": {
               "fill": [
                 { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
-                  "value": "steelblue"
+                  "value": "red"
                 },
-                {"value": "red"}
+                {"value": "steelblue"}
               ]
             }
           }

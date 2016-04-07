@@ -46,9 +46,9 @@ class Stats extends Component {
     var features = this.state.features
     if (this.props.stats.timeFilter !== null) {
       features = features.filter(feature =>
-        feature.properties._timestamp >= this.props.stats.timeFilter[0]/1000
+        feature.properties._timestamp >= this.props.stats.timeFilter[0]
         &&
-        feature.properties._timestamp <= this.props.stats.timeFilter[1]/1000
+        feature.properties._timestamp <= this.props.stats.timeFilter[1]
       )
     }
     features.forEach(f => {
