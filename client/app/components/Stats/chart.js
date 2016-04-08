@@ -13,8 +13,13 @@ class Histogram extends Component {
   _brushStart = null
 
   componentDidMount() {
-    const { data } = this.props
-    const spec = this._spec()
+    const { mode } = this.props
+
+    this.initGraph(mode)
+  }
+
+  initGraph(mode) {
+    const spec = this._spec(mode)
 
     vg.parse.spec(spec, chart => {
       const vis = chart({
@@ -22,8 +27,8 @@ class Histogram extends Component {
         renderer: 'svg'
       })
 
-      vis.onSignal('brush_start', debounce(::this.setTimeFilter, 10))
-      vis.onSignal('brush_end', debounce(::this.setTimeFilter, 200))
+      vis.onSignal('brush_start', debounce(::this.setFilter, 10))
+      vis.onSignal('brush_end', debounce(::this.setFilter, 200))
 
       vis.data('activity').insert([]) // actual data comes later ^^
       vis.update()
@@ -39,18 +44,31 @@ class Histogram extends Component {
     })
   }
 
-  setTimeFilter(signal, time) {
+  setFilter(signal, value) {
+    const { actions, mode } = this.props
     if (signal === 'brush_start') {
-      this._brushStart = time
+      this._brushStart = value
     } else {
-      if (this._brushStart - time === 0) {
-      // startTime === endTime -> reset time filter
-        this.props.actions.setTimeFilter(null)
+      if (mode === 'recency') {
+        if (this._brushStart - value === 0) {
+          // startTime === endTime -> reset time filter
+          actions.setTimeFilter(null)
+        } else {
+          actions.setTimeFilter([
+            Math.min(this._brushStart, value)/1000,
+            Math.max(this._brushStart, value)/1000
+          ])
+        }
       } else {
-        this.props.actions.setTimeFilter([
-          Math.min(this._brushStart, time)/1000,
-          Math.max(this._brushStart, time)/1000
-        ])
+        if (this._brushStart - value === 0) {
+          // startTime === endTime -> reset time filter
+          actions.setExperienceFilter(null)
+        } else {
+          actions.setExperienceFilter([
+            Math.pow(2, /*Math.floor*/(Math.min(this._brushStart, value))),
+            Math.pow(2, /*Math.ceil */(Math.max(this._brushStart, value)))
+          ])
+        }
       }
     }
   }
@@ -58,25 +76,37 @@ class Histogram extends Component {
 
   componentDidUpdate() {
     const { vis } = this.state
-    const { data } = this.props
+    const { data, mode } = this.props
 
     if (vis) {
       // update data in case it changed
       let bins = {}
-      data.forEach(feature => {
-        let day = new Date(feature.properties._timestamp*1000)
-        day.setMilliseconds(0)
-        day.setSeconds(0)
-        day.setMinutes(0)
-        day.setHours(0)
-        day = +day
-        if (!bins[day]) bins[day] = 0
-        bins[day]++
-      })
-      bins = Object.keys(bins).map(day => ({
-        day: +day,
-        count_day: bins[day]
-      }))
+      if (mode === 'recency') {
+        data.forEach(feature => {
+          let day = new Date(feature.properties._timestamp*1000)
+          day.setMilliseconds(0)
+          day.setSeconds(0)
+          day.setMinutes(0)
+          day.setHours(0)
+          day = +day
+          if (!bins[day]) bins[day] = 0
+          bins[day]++
+        })
+        bins = Object.keys(bins).map(day => ({
+          day: +day,
+          count_day: bins[day]
+        }))
+      } else {
+        data.forEach(feature => {
+          let experienceBin = Math.floor(Math.log2(feature.properties._userExperience))
+          if (!bins[experienceBin]) bins[experienceBin] = 0
+          bins[experienceBin]++
+        })
+        bins = Object.keys(bins).map(experience => ({
+          experience: +experience,
+          count_experience: bins[experience]
+        }))
+      }
 
       vis.data('activity').remove(() => true).insert(bins)
 
@@ -91,7 +121,8 @@ class Histogram extends Component {
   }
 
 
-  _spec() {
+  _spec(mode) {
+    const activityMode = mode === 'recency'
     return {
       "width": 1e6, // set initally very high to avoid non-updating clipping boundaries causing issues
       "height": 100,
@@ -138,7 +169,9 @@ class Histogram extends Component {
           "init": 0,
           "streams": [{
             "type": "mousemove",
-            "expr": "+datetime(iscale('x', clamp(eventX(), 0, width)))"
+            "expr": activityMode
+              ? "+datetime(iscale('x', clamp(eventX(), 0, width)))"
+              : "iscale('x', clamp(eventX(), 0, width))"
           }]
         },
         {
@@ -158,26 +191,44 @@ class Histogram extends Component {
         },
         {
           "name": "xMin",
-          "init": +(new Date("2004-08-09")),
+          "init": activityMode
+            ? +(new Date("2004-08-09"))
+            : undefined, // todo: ???
           "streams": [
             //{"type": "delta", "expr": "+datetime(xs.min + (xs.max-xs.min)*delta/width)"},
-            {"type": "zoom", "expr": "+datetime((xs.min-xAnchor)*zoom + xAnchor)"}
+            {
+              "type": "zoom",
+              "expr": activityMode
+                ? "+datetime((xs.min-xAnchor)*zoom + xAnchor)"
+                : "(xs.min-xAnchor)*zoom + xAnchor"
+            }
           ]
         },
         {
           "name": "xMax",
-          "init": +(new Date()),
+          "init": activityMode
+            ? +(new Date())
+            : undefined, // todo: ???
           "streams": [
             //{"type": "delta", "expr": "+datetime(xs.max + (xs.max-xs.min)*delta.x/width)"},
-            {"type": "zoom", "expr": "+datetime((xs.max-xAnchor)*zoom + xAnchor)"}
+            {
+              "type": "zoom",
+              "expr": activityMode
+                ? "+datetime((xs.max-xAnchor)*zoom + xAnchor)"
+                : "(xs.max-xAnchor)*zoom + xAnchor"
+            }
           ]
         },
         {
           "name": "binWidth",
-          "init": 2,
+          "init": activityMode
+            ? 2
+            : 40,
           "streams": [{
             "type": "xMin",
-            "expr": "max(width*86400000/(xMax-xMin), 2)"
+            "expr": activityMode
+              ? "max(width*86400000/(xMax-xMin), 2)"
+              : "40" // todo: hmmm…
           }]
         }
       ],
@@ -191,8 +242,16 @@ class Histogram extends Component {
       "scales": [
         {
           "name": "x",
-          "type": "time",
+          "type": activityMode
+            ? "time"
+            : "linear",
           "range": "width",
+          "domain": {
+            "data": "activity",
+            "field": activityMode
+              ? "day"
+              : "experience"
+          },
           "domainMin": {"signal": "xMin"},
           "domainMax": {"signal": "xMax"}
         },
@@ -200,8 +259,12 @@ class Histogram extends Component {
           "name": "y",
           "type": "linear",
           "range": "height",
-          "domain": {"data": "activity", "field": "count_day"},
-          "nice": true
+          "domain": {
+            "data": "activity",
+            "field": activityMode
+              ? "count_day"
+              : "count_experience"
+          }
         }
       ],
       "axes": [{
@@ -246,12 +309,23 @@ class Histogram extends Component {
                 "enter": {
                 },
                 "update": {
-                  "x": {"scale": "x", "field": "day"},
+                  "x": {"scale": "x",
+                    "field": activityMode
+                      ? "day"
+                      : "experience"
+                  },
                   "width": {"signal": "binWidth"},
-                  "y": {"scale": "y", "field": "count_day"},
+                  "y": {"scale": "y",
+                    "field": activityMode
+                      ? "count_day"
+                      : "count_experience"
+                  },
                   "y2": {"scale": "y", "value": 0},
                   "fill": [
-                    { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
+                    {
+                      "test": activityMode
+                      ? "inrange(datum.day, brush_start, brush_end)"
+                      : "inrange(datum.experience, brush_start, brush_end)",
                       "value": "red"
                     },
                     {"value": "#ACACAC"}

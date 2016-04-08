@@ -51,6 +51,13 @@ class Stats extends Component {
         feature.properties._timestamp <= this.props.stats.timeFilter[1]
       )
     }
+    if (this.props.stats.experienceFilter !== null) {
+      features = features.filter(feature =>
+        feature.properties._userExperience >= this.props.stats.experienceFilter[0]
+        &&
+        feature.properties._userExperience <= this.props.stats.experienceFilter[1]
+      )
+    }
     features.forEach(f => {
       contributors[f.properties._uid] = true
     })
@@ -76,7 +83,7 @@ class Stats extends Component {
           )}
           </ul>
         </Modal>
-        <Histogram data={this.state.features}/>
+        <Histogram key={this.props.mode} data={this.state.features} mode={this.props.mode}/>
       </div>
     )
   }
@@ -92,6 +99,7 @@ class Stats extends Component {
     if (nextProps.map.region !== this.props.map.region) {
       ::this.update(nextProps.map.region)
     }
+    // todo: reset time/experience filter when changing mode from recency to experience or vv
   }
 
   update(region) {

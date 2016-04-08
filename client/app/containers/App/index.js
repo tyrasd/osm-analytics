@@ -16,7 +16,7 @@ class App extends Component {
           overlay={routeParams.overlay}
           view={route.view}
         />
-        {route.view === 'country' ? <Stats/> : ''}
+        {route.view === 'country' ? <Stats mode={routeParams.overlay}/> : ''}
       </div>
     )
   }

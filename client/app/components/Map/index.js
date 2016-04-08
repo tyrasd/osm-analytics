@@ -90,9 +90,12 @@ class Map extends Component {
     if (nextProps.map.region !== this.props.map.region) {
       this.mapSetRegion(nextProps.map.region)
     }
-    // check for changed time filter
+    // check for changed time/experience filter
     if (nextProps.stats.timeFilter !== this.props.stats.timeFilter) {
       this.setTimeFilter(nextProps.stats.timeFilter)
+    }
+    if (nextProps.stats.experienceFilter !== this.props.stats.experienceFilter) {
+      this.setExperienceFilter(nextProps.stats.experienceFilter)
     }
   }
 
@@ -163,21 +166,28 @@ class Map extends Component {
     if (timeFilter === null) {
       // reset time filter
       glLayer._glMap.setFilter('buildings-raw-highlight', ["==", "_timestamp", -1])
-      //glStyle.layers[1].filter = ["==", "_timestamp", -1]
     } else {
       glLayer._glMap.setFilter('buildings-raw-highlight', ["all",
         [">=", "_timestamp", timeFilter[0]],
         ["<=", "_timestamp", timeFilter[1]]
       ])
-      /*glStyle.layers[1].filter = ["all",
-        [">=", "_timestamp", timeFilter[0]],
-        ["<=", "_timestamp", timeFilter[1]]
-      ]*/
     }
-    //glLayer._glMap.setStyle(glStyle)
+  }
+
+  setExperienceFilter(experienceFilter) {
+    if (experienceFilter === null) {
+      // reset time filter
+      glLayer._glMap.setFilter('buildings-raw-highlight', ["==", "_userExperience", -1])
+    } else {
+      glLayer._glMap.setFilter('buildings-raw-highlight', ["all",
+        [">=", "_userExperience", experienceFilter[0]],
+        ["<=", "_userExperience", experienceFilter[1]]
+      ])
+    }
   }
 
 }
+
 
 
 function mapStateToProps(state) {
