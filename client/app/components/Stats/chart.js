@@ -10,6 +10,8 @@ class Histogram extends Component {
     vis: null
   }
 
+  _brushStart = null
+
   componentDidMount() {
     const { data } = this.props
     const spec = this._spec()
@@ -31,17 +33,15 @@ class Histogram extends Component {
 
   setTimeFilter(signal, time) {
     if (signal === 'brush_start') {
-      this.setState({
-        startTime: time
-      })
+      this._brushStart = time
     } else {
-      if (this.state.startTime - time === 0) {
+      if (this._brushStart - time === 0) {
       // startTime === endTime -> reset time filter
         this.props.actions.setTimeFilter(null)
       } else {
         this.props.actions.setTimeFilter([
-          Math.min(this.state.startTime, time)/1000,
-          Math.max(this.state.startTime, time)/1000
+          Math.min(this._brushStart, time)/1000,
+          Math.max(this._brushStart, time)/1000
         ])
       }
     }
