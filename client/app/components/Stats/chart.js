@@ -27,6 +27,14 @@ class Histogram extends Component {
 
       vis.data('activity').insert([]) // actual data comes later ^^
       vis.update()
+
+      const _prevWindowOnresize = window.onresize
+      window.onresize = function(...args) {
+        _prevWindowOnresize && _prevWindowOnresize.apply(this, args)
+        vis.width(window.innerWidth-90).update()
+      }
+      vis.width(window.innerWidth-90).update()
+
       this.setState({ vis })
     })
   }
@@ -84,11 +92,10 @@ class Histogram extends Component {
 
 
   _spec() {
-    const chartWidth = 1000
     return {
-      "width": chartWidth,
+      "width": 1e6, // set initally very high to avoid non-updating clipping boundaries causing issues
       "height": 100,
-      "padding": {"top": 10, "left": 40, "bottom": 30, "right": 50},
+      "padding": {"top": 10, "left": 40, "bottom": 30, "right": 5},
 
       "signals": [
         {
@@ -200,7 +207,7 @@ class Histogram extends Component {
       "axes": [{
         "type": "x",
         "scale": "x",
-        "grid": true,
+        "grid": false,
         "layer": "back",
         "properties": {
            "axis": {
@@ -262,7 +269,7 @@ class Histogram extends Component {
               "width": {"field": {"group": "width"}},
               "y": {"value": 0},
               "height": {"field": {"group": "height"}},
-              "clip": {"value": !true}
+              "clip": {"value": false}
             }
           },
           "marks": [
