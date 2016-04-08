@@ -91,13 +91,12 @@ class Histogram extends Component {
       "padding": {"top": 10, "left": 40, "bottom": 30, "right": 50},
 
       "signals": [
-        {"name": "w", "init": chartWidth},
         {
           "name": "brush_start",
           "init": {},
           "streams": [{
             "type": "mousedown",
-            "expr": "iscale('x', clamp(eventX(), 0, w))"
+            "expr": "iscale('x', clamp(eventX(), 0, width))"
           }]
         },
         {
@@ -105,7 +104,73 @@ class Histogram extends Component {
           "init": {},
           "streams": [{
             "type": "mousedown, [mousedown, window:mouseup] > window:mousemove",
-            "expr": "iscale('x', clamp(eventX(), 0, w))"
+            "expr": "iscale('x', clamp(eventX(), 0, width))"
+          }]
+        },
+
+        // the commented out part would enable panning, but interferes with the brushing above.
+        // todo: check if this can be done via some modifier key or something...
+        /*{
+          "name": "point",
+          "init": 0,
+          "streams": [{
+            "type": "mousedown",
+            "expr": "eventX()"
+          }]
+        },
+        {
+          "name": "delta",
+          "init": 0,
+          "streams": [{
+            "type": "[mousedown, window:mouseup] > window:mousemove",
+            "expr": "point.x - eventX()"
+          }]
+        },*/
+        {
+          "name": "xAnchor",
+          "init": 0,
+          "streams": [{
+            "type": "mousemove",
+            "expr": "+datetime(iscale('x', clamp(eventX(), 0, width)))"
+          }]
+        },
+        {
+          "name": "zoom",
+          "init": 1.0,
+          "verbose": true,
+          "streams": [
+            {"type": "wheel", "expr": "pow(1.01, event.deltaY*pow(16, event.deltaMode))"}
+          ]
+        },
+        {
+          "name": "xs",
+          "streams": [{
+            "type": "mousedown, mouseup, wheel",
+            "expr": "{min: xMin, max: xMax}"}
+          ]
+        },
+        {
+          "name": "xMin",
+          "init": +(new Date("2004-08-09")),
+          "streams": [
+            //{"type": "delta", "expr": "+datetime(xs.min + (xs.max-xs.min)*delta/width)"},
+            {"type": "zoom", "expr": "+datetime((xs.min-xAnchor)*zoom + xAnchor)"}
+          ]
+        },
+        {
+          "name": "xMax",
+          "init": +(new Date()),
+          "streams": [
+            //{"type": "delta", "expr": "+datetime(xs.max + (xs.max-xs.min)*delta.x/width)"},
+            {"type": "zoom", "expr": "+datetime((xs.max-xAnchor)*zoom + xAnchor)"}
+          ]
+        },
+        {
+          "name": "binWidth",
+          "init": 2,
+          "streams": [{
+            "type": "xMin",
+            "expr": "max(width*86400000/(xMax-xMin), 2)"
           }]
         }
       ],
@@ -121,10 +186,8 @@ class Histogram extends Component {
           "name": "x",
           "type": "time",
           "range": "width",
-          "domain": [
-            +(new Date("2004-08-09")),
-            +(new Date())
-          ]
+          "domainMin": {"signal": "xMin"},
+          "domainMax": {"signal": "xMax"}
         },
         {
           "name": "y",
@@ -134,9 +197,17 @@ class Histogram extends Component {
           "nice": true
         }
       ],
-      "axes": [
-        {"type": "x", "scale": "x"},
-      ],
+      "axes": [{
+        "type": "x",
+        "scale": "x",
+        "grid": true,
+        "layer": "back",
+        "properties": {
+          "labels": {
+            "fontSize": {"value": 14}
+          }
+        }
+      }],
       "marks": [
         {
           "type": "rect",
@@ -154,6 +225,40 @@ class Histogram extends Component {
           }
         },
         {
+          "type": "group",
+          "properties": {
+            "enter": {
+              "x": {"value": 0},
+              "width": {"field": {"group": "width"}},
+              "y": {"value": 0},
+              "height": {"field": {"group": "height"}},
+              "clip": {"value": true}
+            }
+          },
+          "marks": [
+            {
+              "type": "rect",
+              "from": {"data": "activity"},
+              "properties": {
+                "enter": {
+                },
+                "update": {
+                  "x": {"scale": "x", "field": "day"},
+                  "width": {"signal": "binWidth"},
+                  "y": {"scale": "y", "field": "count_day"},
+                  "y2": {"scale": "y", "value": 0},
+                  "fill": [
+                    { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
+                      "value": "red"
+                    },
+                    {"value": "steelblue"}
+                  ]
+                }
+              }
+            }
+          ]
+        }
+        /*{
           "type": "rect",
           "from": {"data": "activity"},
           "properties": {
@@ -172,7 +277,7 @@ class Histogram extends Component {
               ]
             }
           }
-        }
+        }*/
       ]
     }
   }
