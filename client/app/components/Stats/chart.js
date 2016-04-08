@@ -203,27 +203,23 @@ class Histogram extends Component {
         "grid": true,
         "layer": "back",
         "properties": {
+           "axis": {
+             "stroke": {"value": "#C2C2C2"},
+             "strokeWidth": {"value": 1}
+           },
+           "ticks": {
+             "stroke": {"value": "#C2C2C2"}
+           },
+           "majorTicks": {
+             "strokeWidth": {"value": 2}
+           },
           "labels": {
-            "fontSize": {"value": 14}
+            "fontSize": {"value": 14},
+            "fill": {"value": "#BCBCBC"},
           }
         }
       }],
       "marks": [
-        {
-          "type": "rect",
-          "properties": {
-            "enter": {
-              "fill": {"value": "green"},
-              "fillOpacity": {"value": 0.7}
-            },
-            "update": {
-              "x": {"scale": "x", "signal": "brush_start"},
-              "x2": {"scale": "x", "signal": "brush_end"},
-              "y": {"scale": "y", "value": ""},
-              "y2": {"scale": "y", "value": 9990}
-            }
-          }
-        },
         {
           "type": "group",
           "properties": {
@@ -251,33 +247,82 @@ class Histogram extends Component {
                     { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
                       "value": "red"
                     },
-                    {"value": "steelblue"}
+                    {"value": "#ACACAC"}
                   ]
                 }
               }
             }
           ]
-        }
-        /*{
-          "type": "rect",
-          "from": {"data": "activity"},
+        },
+        {
+          "type": "group",
           "properties": {
             "enter": {
-              "x": {"scale": "x", "field": "day"},
-              "width": {"value": 2},
-              "y": {"scale": "y", "field": "count_day"},
-              "y2": {"scale": "y", "value": 0}
-            },
-            "update": {
-              "fill": [
-                { "test": "brush_start==brush_end || inrange(datum.day, brush_start, brush_end)",
-                  "value": "red"
-                },
-                {"value": "steelblue"}
-              ]
+              "x": {"value": 0},
+              "width": {"field": {"group": "width"}},
+              "y": {"value": 0},
+              "height": {"field": {"group": "height"}},
+              "clip": {"value": !true}
             }
-          }
-        }*/
+          },
+          "marks": [
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#72DDEF"},
+                  "fillOpacity": {"value": 0.3}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_start"},
+                  "x2": {"scale": "x", "signal": "brush_end"},
+                  "y": {"value": 40},
+                  "height": {"value": 70}
+                }
+              }
+            },
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#BCE3E9"},
+                  "fillOpacity": {"value": 1}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_start"},
+                  "width": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
+                      "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "y": {"value": 40-8},
+                  "height": {"value": 70+2*8}
+                }
+              }
+            },
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#BCE3E9"},
+                  "fillOpacity": {"value": 1}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_end"},
+                  "width": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end",
+                      "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "y": {"value": 40-8},
+                  "height": {"value": 70+2*8}
+                }
+              }
+            }
+          ]
+        }
       ]
     }
   }
