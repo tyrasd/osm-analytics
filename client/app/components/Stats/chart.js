@@ -121,7 +121,10 @@ class Histogram extends Component {
           "name": "x",
           "type": "time",
           "range": "width",
-          "domain": {"data": "activity", "field": "day"}
+          "domain": [
+            +(new Date("2004-08-09")),
+            +(new Date())
+          ]
         },
         {
           "name": "y",
