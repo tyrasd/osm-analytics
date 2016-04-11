@@ -10,7 +10,7 @@ import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures from './searchFeatures'
-import { filters } from '../../settings/options'
+import { filters, overlays } from '../../settings/options'
 import style from './style.css'
 
 
@@ -77,9 +77,10 @@ class Stats extends Component {
     return (
       <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
+          <li><p>{overlays.find(overlay => overlay.id === this.props.mode).description}</p></li>
         {features.map(filter => (
-          <li>
-            <span key={filter.filter} className="number">{
+          <li key={filter.filter}>
+            <span className="number">{
               filter.filter === 'highways'
               ? Number(filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)).toFixed(0)
               : filter.highlightedFeatures.length

@@ -11,10 +11,6 @@ export const filters = [
 
 export const overlays = [
   {
-    id: 'number',
-    description: 'Number of Features'
-  },
-  {
     id: 'recency',
     description: 'Recency of Edits'
   },
