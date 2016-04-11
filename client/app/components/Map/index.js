@@ -125,7 +125,7 @@ class Map extends Component {
     if (!boundsLayer) return
     this.props.actions.setRegion({
       type: 'polygon',
-      coords: boundsLayer.toGeoJSON().geometry.coordinates[0].slice(0,-1)
+      coords: L.polygon(boundsLayer.getLatLngs()[1]).toGeoJSON().geometry.coordinates[0].slice(0,-1)
     })
   }
 
@@ -136,7 +136,9 @@ class Map extends Component {
       map.removeLayer(boundsLayer)
     }
     if (region === null) return
-    boundsLayer = L.polygon(regionToCoords(region, 'leaflet'), {
+    boundsLayer = L.polygon(
+      [[[-85.0511287798,-1E5],[85.0511287798,-1E5],[85.0511287798,2E5],[-85.0511287798,2E5],[-85.0511287798,-1E5]]]
+      .concat(regionToCoords(region, 'leaflet')), {
       weight: 1,
       color: 'gray'
     }).addTo(map)
@@ -158,7 +160,9 @@ class Map extends Component {
       } else {
         fitboundsFunc = () => {}
       }
-      fitboundsFunc(boundsLayer.getBounds(), {
+      fitboundsFunc(
+        L.polygon(boundsLayer.getLatLngs()[1]).getBounds(), // zoom to inner ring!
+      {
         paddingTopLeft: [20, 10+52],
         paddingBottomRight: [20, 10+212]
       })

@@ -29,5 +29,6 @@ export default function getExtrapolationFactor(mode, requestZoom) {
     return calibration[requestZoom] // todo: this doesn't seem to fit every region :/ check
   } else {
     return Math.pow(1.4, 14-requestZoom)
+    // todo: how to account for line simplification of roads affecting their length?
   }
 }
