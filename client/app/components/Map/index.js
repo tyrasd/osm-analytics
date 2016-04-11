@@ -59,7 +59,7 @@ class Map extends Component {
     glLayer = L.mapboxGL({
       updateInterval: 0,
       accessToken: token,
-      style: glStyles([]),
+      style: glStyles(this.props.map.filters),
       hash: false
     }).addTo(map)
 
