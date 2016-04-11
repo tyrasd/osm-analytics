@@ -30,7 +30,7 @@
     "paint": {
       "line-width": 2,
       "line-color": "#ff0000",
-      "line-opacity": 0.8
+      "line-opacity": 1
     },
     "filter": ["==", "_timestamp", -1]
   }]

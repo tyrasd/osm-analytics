@@ -75,7 +75,7 @@ class Stats extends Component {
 
     // todo: loading animation if region is not yet fully loaded
     return (
-      <div id="stats">
+      <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
         {features.map(filter => (
           <li>
@@ -93,7 +93,6 @@ class Stats extends Component {
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
           <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
         </ul>
-        {this.state.updating ? 'updating…' : ''}
 
         <Modal
           isOpen={this.state.hotProjectsModalOpen}
