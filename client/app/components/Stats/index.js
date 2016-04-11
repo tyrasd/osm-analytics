@@ -9,7 +9,8 @@ import Header from '../Header'
 import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
-import searchFeatures from './searchFeatures'
+import searchFeatures, { getRegionZoom } from './searchFeatures'
+import getExtrapolationFactor from './extrapolate'
 import { filters, overlays } from '../../settings/options'
 import style from './style.css'
 
@@ -78,19 +79,26 @@ class Stats extends Component {
       <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
           <li><p>{overlays.find(overlay => overlay.id === this.props.mode).description}</p></li>
-        {features.map(filter => (
-          <li key={filter.filter}>
-            <span className="number">{
-              filter.filter === 'highways'
-              ? Number(filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)).toFixed(0)
-              : filter.highlightedFeatures.length
+        {features.map(filter => {
+          let extrapolationFactor = this.props.map.region
+            ? getExtrapolationFactor(
+              filter.filter,
+              getRegionZoom(polygon(regionToCoords(this.props.map.region)))
+            )
+            : 1
+          return (<li key={filter.filter}>
+            <span className="number" title={extrapolationFactor}>{
+              Number((filter.filter === 'highways'
+                ? filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)
+                : filter.highlightedFeatures.length)
+              * extrapolationFactor).toFixed(0) // todo: calculate uncertainty
             }</span><br/>
             <span className="descriptor">{
               (filter.filter === 'highways' ? 'km of ' : '')
               + filters.find(f => f.id === filter.filter).description
             }</span>
-          </li>
-        ))}
+          </li>)
+        })}
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
           <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
         </ul>

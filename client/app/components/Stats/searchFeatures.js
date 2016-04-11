@@ -130,3 +130,4 @@ function getArrayBuffer(url, callback) {
 };
 
 export default fetch
+export { getRegionZoom }
