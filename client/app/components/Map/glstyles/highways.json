@@ -1,0 +1,37 @@
+{
+  "version": 8,
+  "sources": {
+    "osm-highways-raw": {
+      "type": "vector",
+      "tiles": [
+        "http://52.207.244.74:7778/highways/{z}/{x}/{y}.pbf"
+      ],
+      "minzoom": 0,
+      "maxzoom": 14
+    }
+  },
+  "layers": [{
+    "id": "highways-raw",
+    "interactive": true,
+    "type": "line",
+    "source": "osm-highways-raw",
+    "source-layer": "osm",
+    "paint": {
+      "line-width": 1,
+      "line-color": "#000000",
+      "line-opacity": 0.5
+    }
+  }, {
+    "id": "highways-raw-highlight",
+    "interactive": true,
+    "type": "line",
+    "source": "osm-highways-raw",
+    "source-layer": "osm",
+    "paint": {
+      "line-width": 2,
+      "line-color": "#ff0000",
+      "line-opacity": 0.8
+    },
+    "filter": ["==", "_timestamp", -1]
+  }]
+}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import style from './style.css'
-import glStyle from './buildings.json'
+import glStyles from './glstyles'
 import OverlayButton from '../OverlayButton'
 import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox/index.js'
@@ -59,7 +59,7 @@ class Map extends Component {
     glLayer = L.mapboxGL({
       updateInterval: 0,
       accessToken: token,
-      style: glStyle,
+      style: glStyles([]),
       hash: false
     }).addTo(map)
 
@@ -89,6 +89,9 @@ class Map extends Component {
     // check for changed map parameters
     if (nextProps.map.region !== this.props.map.region) {
       this.mapSetRegion(nextProps.map.region)
+    }
+    if (nextProps.map.filters !== this.props.map.filters) {
+      glLayer._glMap.setStyle(glStyles(nextProps.map.filters, nextProps.stats.timeFilter, nextProps.stats.experienceFilter))
     }
     // check for changed time/experience filter
     if (nextProps.stats.timeFilter !== this.props.stats.timeFilter) {
@@ -163,26 +166,36 @@ class Map extends Component {
   }
 
   setTimeFilter(timeFilter) {
+    const highlightLayers = glStyles(this.props.map.filters).layers.map(l => l.id).filter(id => id.match(/highlight/))
     if (timeFilter === null) {
       // reset time filter
-      glLayer._glMap.setFilter('buildings-raw-highlight', ["==", "_timestamp", -1])
+      highlightLayers.forEach(highlightLayer => {
+        glLayer._glMap.setFilter(highlightLayer, ["==", "_timestamp", -1])
+      })
     } else {
-      glLayer._glMap.setFilter('buildings-raw-highlight', ["all",
-        [">=", "_timestamp", timeFilter[0]],
-        ["<=", "_timestamp", timeFilter[1]]
-      ])
+      highlightLayers.forEach(highlightLayer => {
+        glLayer._glMap.setFilter(highlightLayer, ["all",
+          [">=", "_timestamp", timeFilter[0]],
+          ["<=", "_timestamp", timeFilter[1]]
+        ])
+      })
     }
   }
 
   setExperienceFilter(experienceFilter) {
+    const highlightLayers = glStyles(this.props.map.filters).layers.map(l => l.id).filter(id => id.match(/highlight/))
     if (experienceFilter === null) {
       // reset time filter
-      glLayer._glMap.setFilter('buildings-raw-highlight', ["==", "_userExperience", -1])
+      highlightLayers.forEach(highlightLayer => {
+        glLayer._glMap.setFilter(highlightLayer, ["==", "_timestamp", -1])
+      })
     } else {
-      glLayer._glMap.setFilter('buildings-raw-highlight', ["all",
-        [">=", "_userExperience", experienceFilter[0]],
-        ["<=", "_userExperience", experienceFilter[1]]
-      ])
+      highlightLayers.forEach(highlightLayer => {
+        glLayer._glMap.setFilter(highlightLayer, ["all",
+          [">=", "_userExperience", experienceFilter[0]],
+          ["<=", "_userExperience", experienceFilter[1]]
+        ])
+      })
     }
   }
 

@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 import Modal from 'react-modal';
 import { polygon } from 'turf'
+import { queue } from 'd3-queue'
 import Map from '../Map'
 import Header from '../Header'
 import Histogram from './chart'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures from './searchFeatures'
+import { filters } from '../../settings/options'
 import style from './style.css'
 
 
@@ -42,31 +44,52 @@ class Stats extends Component {
   }
 
   render() {
-    var contributors = {}
     var features = this.state.features
-    if (this.props.stats.timeFilter !== null) {
-      features = features.filter(feature =>
-        feature.properties._timestamp >= this.props.stats.timeFilter[0]
-        &&
-        feature.properties._timestamp <= this.props.stats.timeFilter[1]
+
+    // apply time and experience filters
+    features.forEach(filter => {
+      // do not override!
+      filter.highlightedFeatures = filter.features.filter(feature =>
+        this.props.stats.timeFilter === null
+        || (
+          feature.properties._timestamp >= this.props.stats.timeFilter[0]
+          && feature.properties._timestamp <= this.props.stats.timeFilter[1]
+        )
+      ).filter(feature =>
+        this.props.stats.experienceFilter === null
+        || (
+          feature.properties._userExperience >= this.props.stats.experienceFilter[0]
+          && feature.properties._userExperience <= this.props.stats.experienceFilter[1]
+        )
       )
-    }
-    if (this.props.stats.experienceFilter !== null) {
-      features = features.filter(feature =>
-        feature.properties._userExperience >= this.props.stats.experienceFilter[0]
-        &&
-        feature.properties._userExperience <= this.props.stats.experienceFilter[1]
-      )
-    }
-    features.forEach(f => {
-      contributors[f.properties._uid] = true
     })
-    const numContribuors = Object.keys(contributors).length
+
+    // calculate number of contributors
+    var _contributors = {}
+    features.forEach(filter => {
+      filter.highlightedFeatures.forEach(f => {
+        _contributors[f.properties._uid] = true
+      })
+    })
+    const numContribuors = Object.keys(_contributors).length
+
     // todo: loading animation if region is not yet fully loaded
     return (
       <div id="stats">
         <ul className="metrics">
-          <li><span className="number">{features.length}</span><br/><span className="descriptor">Buildings</span></li>
+        {features.map(filter => (
+          <li>
+            <span key={filter.filter} className="number">{
+              filter.filter === 'highways'
+              ? Number(filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)).toFixed(0)
+              : filter.highlightedFeatures.length
+            }</span><br/>
+            <span className="descriptor">{
+              (filter.filter === 'highways' ? 'km of ' : '')
+              + filters.find(f => f.id === filter.filter).description
+            }</span>
+          </li>
+        ))}
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
           <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
         </ul>
@@ -83,31 +106,41 @@ class Stats extends Component {
           )}
           </ul>
         </Modal>
-        <Histogram key={this.props.mode} data={this.state.features} mode={this.props.mode}/>
+        <Histogram key={this.props.mode} mode={this.props.mode} data={
+          features.reduce((prev, filter) => prev.concat(filter.features), [])
+        }/>
       </div>
     )
   }
 
   componentDidMount() {
     if (this.props.map.region) {
-      ::this.update(this.props.map.region)
+      ::this.update(this.props.map.region, this.props.map.filters)
     }
   }
 
   componentWillReceiveProps(nextProps) {
     // check for changed map parameters
-    if (nextProps.map.region !== this.props.map.region) {
-      ::this.update(nextProps.map.region)
+    if (nextProps.map.region !== this.props.map.region
+      || nextProps.map.filters !== this.props.map.filters) {
+      ::this.update(nextProps.map.region, nextProps.map.filters)
     }
     // todo: reset time/experience filter when changing mode from recency to experience or vv
   }
 
-  update(region) {
+  update(region, filters) {
     region = polygon(regionToCoords(region))
     this.setState({ updating: true })
-    searchFeatures(region, function(err, data) {
+    var q = queue()
+    filters.forEach(filter =>
+      q.defer(searchFeatures, region, filter)
+    )
+    q.awaitAll(function(err, data) {
       this.setState({
-        features: data.features,
+        features: data.map((d,index) => ({
+          filter: filters[index],
+          features: d.features
+        })),
         updating: false
       })
     }.bind(this))

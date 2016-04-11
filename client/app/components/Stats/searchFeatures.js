@@ -1,19 +1,22 @@
 import * as request from 'superagent'
 import vt from 'vector-tile'
 import Protobuf from 'pbf'
-import { extent, intersect, bboxPolygon, featurecollection, centroid, within } from 'turf'
+import { extent, intersect, bboxPolygon, featurecollection, centroid, lineDistance, within } from 'turf'
 import Sphericalmercator from 'sphericalmercator'
 import { queue } from 'd3-queue'
+import { filters } from '../../settings/options'
 
-var cache = {} // todo: cache invalidation
 var merc = new Sphericalmercator({size: 512})
 
-function fetch(region, callback) {
+var cache = {} // todo: cache invalidation
+filters.forEach(filter => cache[filter.id] = {})
+
+function fetch(region, filter, callback) {
   const zoom = getRegionZoom(region)
   const tiles = getRegionTiles(region, zoom)
-  const toLoad = tiles.filter(tile => cache[tile.hash] === undefined)
+  const toLoad = tiles.filter(tile => cache[filter][tile.hash] === undefined)
   var q = queue(4) // max 4 concurrently loading tiles in queue
-  toLoad.forEach(tile => q.defer(getAndCacheTile, tile))
+  toLoad.forEach(tile => q.defer(getAndCacheTile, tile, filter))
   q.awaitAll(function(err) {
     if (err) return callback(err)
     // return matching features
@@ -21,7 +24,7 @@ function fetch(region, callback) {
     const regionFc = featurecollection([region])
     tiles.forEach(tile => {
       output = output.concat(
-        within(cache[tile.hash], regionFc).features
+        within(cache[filter][tile.hash], regionFc).features
       )
     })
     // todo: handle tile boundaries / split features (merge features with same osm id)
@@ -68,16 +71,17 @@ function getRegionTiles(region, zoom) {
   return tiles
 }
 
-function getAndCacheTile(tile, callback) {
-  loadTile(tile, function(err, data) {
+function getAndCacheTile(tile, filter, callback) {
+  loadTile(tile, filter, function(err, data) {
     if (err) return callback(err)
     // convert features to centroids, store tile data in cache
     data.features = data.features.map(feature => {
       var centr = centroid(feature)
       centr.properties = feature.properties
+      centr.properties._length = lineDistance(feature, 'kilometers')
       return centr
     })
-    cache[tile.hash] = data
+    cache[filter][tile.hash] = data
     callback(null) // don't return any actual data as it is available via the cache already
   })
 }
@@ -93,9 +97,9 @@ function parseTile(tile, data, callback) {
   }
   callback(null, featurecollection(features))
 }
-function loadTile(tile, callback) {
+function loadTile(tile, filter, callback) {
   // based on https://github.com/mapbox/mapbox-gl-js/blob/master/js/source/worker.js
-  var url = 'http://52.50.120.37:7778/v2/tiles/'+tile.zoom+'/'+tile.x+'/'+tile.y+'.pbf' // todo: ->settings
+  var url = 'http://52.207.244.74:7778/'+filter+'/'+tile.zoom+'/'+tile.x+'/'+tile.y+'.pbf' // todo: ->settings
 
   getArrayBuffer(url, function done(err, data) {
     if (err) return callback(err)

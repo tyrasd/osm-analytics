@@ -1,0 +1,35 @@
+{
+  "version": 8,
+  "sources": {
+    "osm-buildings-raw": {
+      "type": "vector",
+      "tiles": [
+        "http://52.207.244.74:7778/buildings/{z}/{x}/{y}.pbf"
+      ],
+      "minzoom": 0,
+      "maxzoom": 14
+    }
+  },
+  "layers": [{
+    "id": "buildings-raw",
+    "interactive": true,
+    "type": "fill",
+    "source": "osm-buildings-raw",
+    "source-layer": "osm",
+    "paint": {
+      "fill-color": "#000000",
+      "fill-opacity": 0.5
+    }
+  }, {
+    "id": "buildings-raw-highlight",
+    "interactive": true,
+    "type": "fill",
+    "source": "osm-buildings-raw",
+    "source-layer": "osm",
+    "paint": {
+      "fill-color": "#ff0000",
+      "fill-opacity": 0.8
+    },
+    "filter": ["==", "_timestamp", -1]
+  }]
+}
