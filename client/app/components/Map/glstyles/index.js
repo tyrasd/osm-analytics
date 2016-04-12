@@ -38,8 +38,8 @@ export default function getStyle(filters, timeFilter, experienceFilter) {
       .reduce((prev, filterSources) => prev.concat(filterSources), [])
       .sort((a,b) => {
         if (a.id.match(/highlight/) && b.id.match(/highlight/)) return 0
-        if (a.id.match(/highlight/)) return -1
-        if (b.id.match(/highlight/)) return +1
+        if (a.id.match(/highlight/)) return +1
+        if (b.id.match(/highlight/)) return -1
         return 0
       })
   }

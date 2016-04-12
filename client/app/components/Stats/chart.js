@@ -298,6 +298,75 @@ class Histogram extends Component {
               "width": {"field": {"group": "width"}},
               "y": {"value": 0},
               "height": {"field": {"group": "height"}},
+              "clip": {"value": false}
+            }
+          },
+          "marks": [
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#72DDEF"},
+                  "fillOpacity": {"value": 0.3}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_start"},
+                  "x2": {"scale": "x", "signal": "brush_end"},
+                  "y": {"value": 30},
+                  "height": {"value": 70}
+                }
+              }
+            },
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#BCE3E9"},
+                  "fillOpacity": {"value": 1}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_start"},
+                  "width": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
+                      "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "y": {"value": 30-8},
+                  "height": {"value": 70+2*8}
+                }
+              }
+            },
+            {
+              "type": "rect",
+              "properties": {
+                "enter": {
+                  "fill": {"value": "#BCE3E9"},
+                  "fillOpacity": {"value": 1}
+                },
+                "update": {
+                  "x": {"scale": "x", "signal": "brush_end"},
+                  "width": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end",
+                      "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "y": {"value": 30-8},
+                  "height": {"value": 70+2*8}
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "properties": {
+            "enter": {
+              "x": {"value": 0},
+              "width": {"field": {"group": "width"}},
+              "y": {"value": 0},
+              "height": {"field": {"group": "height"}},
               "clip": {"value": true}
             }
           },
@@ -326,79 +395,10 @@ class Histogram extends Component {
                       "test": activityMode
                       ? "inrange(datum.day, brush_start, brush_end)"
                       : "inrange(datum.experience, brush_start, brush_end)",
-                      "value": "red"
+                        "value": "#DADADA"
                     },
                     {"value": "#ACACAC"}
                   ]
-                }
-              }
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "properties": {
-            "enter": {
-              "x": {"value": 0},
-              "width": {"field": {"group": "width"}},
-              "y": {"value": 0},
-              "height": {"field": {"group": "height"}},
-              "clip": {"value": false}
-            }
-          },
-          "marks": [
-            {
-              "type": "rect",
-              "properties": {
-                "enter": {
-                  "fill": {"value": "#72DDEF"},
-                  "fillOpacity": {"value": 0.3}
-                },
-                "update": {
-                  "x": {"scale": "x", "signal": "brush_start"},
-                  "x2": {"scale": "x", "signal": "brush_end"},
-                  "y": {"value": 40},
-                  "height": {"value": 70}
-                }
-              }
-            },
-            {
-              "type": "rect",
-              "properties": {
-                "enter": {
-                  "fill": {"value": "#BCE3E9"},
-                  "fillOpacity": {"value": 1}
-                },
-                "update": {
-                  "x": {"scale": "x", "signal": "brush_start"},
-                  "width": [
-                    { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
-                      "value": 2
-                    },
-                    {"value": 0}
-                  ],
-                  "y": {"value": 40-8},
-                  "height": {"value": 70+2*8}
-                }
-              }
-            },
-            {
-              "type": "rect",
-              "properties": {
-                "enter": {
-                  "fill": {"value": "#BCE3E9"},
-                  "fillOpacity": {"value": 1}
-                },
-                "update": {
-                  "x": {"scale": "x", "signal": "brush_end"},
-                  "width": [
-                    { "test": "brush_start>brush_end || brush_start<brush_end",
-                      "value": 2
-                    },
-                    {"value": 0}
-                  ],
-                  "y": {"value": 40-8},
-                  "height": {"value": 70+2*8}
                 }
               }
             }

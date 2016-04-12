@@ -17,8 +17,9 @@
     "source": "osm-buildings-raw",
     "source-layer": "osm",
     "paint": {
-      "fill-color": "#000000",
-      "fill-opacity": 0.5
+      "fill-color": "#FDB863",
+      "fill-opacity": 1,
+      "fill-outline-color": "#E08214"
     }
   }, {
     "id": "buildings-raw-highlight",
@@ -27,7 +28,7 @@
     "source": "osm-buildings-raw",
     "source-layer": "osm",
     "paint": {
-      "fill-color": "#ff0000",
+      "fill-color": "#5CBAD8",
       "fill-opacity": 1
     },
     "filter": ["==", "_timestamp", -1]

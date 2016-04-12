@@ -41,24 +41,27 @@ class Map extends Component {
       //glStyle.sources['osm-buildings-raw'].tiles[0] = glStyle.sources['osm-buildings-raw'].tiles[0].replace('52.50.120.37', 'localhost')
     }
 
+
     map = L.map(
       'map', {
       editable: true,
       minZoom: 0
     })
     .setView([0, 35], 2)
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-        zIndex: -1
-    }).addTo(map);
     map.zoomControl.setPosition('bottomright')
-
     map.on('editable:editing', debounce(::this.setCustomRegion, 200))
 
-    var token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
+    var mapbox_token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
+    //L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //    attribution: '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+    //}).addTo(map)
+    L.tileLayer('https://api.mapbox.com/v4/mapbox.light/{z}/{x}/{y}.png?access_token=' + mapbox_token, {
+      attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+        zIndex: -1
+    }).addTo(map)
     glLayer = L.mapboxGL({
       updateInterval: 0,
-      accessToken: token,
+      accessToken: mapbox_token,
       style: glStyles(this.props.map.filters),
       hash: false
     }).addTo(map)

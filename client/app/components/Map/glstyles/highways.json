@@ -18,8 +18,8 @@
     "source-layer": "osm",
     "paint": {
       "line-width": 1,
-      "line-color": "#000000",
-      "line-opacity": 0.5
+      "line-color": "#9e9ac8",
+      "line-opacity": 1
     }
   }, {
     "id": "highways-raw-highlight",
@@ -29,7 +29,7 @@
     "source-layer": "osm",
     "paint": {
       "line-width": 2,
-      "line-color": "#ff0000",
+      "line-color": "#5CBAD8",
       "line-opacity": 1
     },
     "filter": ["==", "_timestamp", -1]
