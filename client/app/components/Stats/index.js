@@ -4,14 +4,14 @@ import { connect } from 'react-redux'
 import Modal from 'react-modal';
 import { polygon } from 'turf'
 import { queue } from 'd3-queue'
-import Map from '../Map'
-import Header from '../Header'
+import * as MapActions from '../../actions/map'
+import OverlayButton from '../OverlayButton'
 import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures, { getRegionZoom } from './searchFeatures'
 import getExtrapolationFactor from './extrapolate'
-import { filters, overlays } from '../../settings/options'
+import { filters } from '../../settings/options'
 import style from './style.css'
 
 
@@ -78,7 +78,9 @@ class Stats extends Component {
     return (
       <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
-          <li><p>{overlays.find(overlay => overlay.id === this.props.mode).description}</p></li>
+          <li>
+            <OverlayButton enabledOverlay={this.props.map.overlay} {...this.props.actions}/>
+          </li>
         {features.map(filter => {
           let extrapolationFactor = this.props.map.region
             ? getExtrapolationFactor(
@@ -176,7 +178,9 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return {}
+  return {
+    actions: bindActionCreators(MapActions, dispatch)
+  }
 }
 
 export default connect(

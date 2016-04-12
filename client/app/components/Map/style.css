@@ -33,16 +33,7 @@ button.outline {
 button.filter {
   position: absolute;
   top: 72px;
-  right: 90px;
-}
-button.overlay {
-  position: absolute;
-  top: 72px;
   right: 25px;
-  width: 50px;
-  background-image: url("../../assets/overlays.svg");
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 /* leaflet stuff */

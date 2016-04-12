@@ -5,7 +5,7 @@ import { filters } from '../../settings/options'
 
 class FilterButton extends Component {
   render() {
-    var btn = <button className='filter'>Filter Map Features</button>
+    var btn = <button className='filter'>Select Map Features</button>
     return (
       <DropdownButton
         options={filters}

@@ -35,6 +35,13 @@ div#stats {
     p {
       margin: 0;
       color: white;
+      cursor: pointer;
+    }
+    a {
+      cursor: pointer;
+    }
+    a:hover {
+      color: #DDDDDD;
     }
   }
 
@@ -53,4 +60,9 @@ ul.hot-projects {
     line-height: 30px;
     margin-bottom: 10px;
   }
+}
+
+.overlays-dropdown > .rc-dropdown-menu:before {
+  left: 21px;
+  right: auto;
 }

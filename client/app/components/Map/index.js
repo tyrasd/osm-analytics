@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import style from './style.css'
 import glStyles from './glstyles'
-import OverlayButton from '../OverlayButton'
 import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox/index.js'
 import { bindActionCreators } from 'redux'
@@ -30,7 +29,6 @@ class Map extends Component {
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
         <FilterButton enabledFilters={map.filters} {...actions}/>
-        <OverlayButton enabledOverlay={map.overlay} {...actions}/>
       </div>
     )
   }

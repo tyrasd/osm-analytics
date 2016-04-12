@@ -26,7 +26,13 @@ class DropdownButton extends Component {
       </Menu>
     )
     return (
-      <Dropdown trigger={['click']} overlay={menu} onVisibleChange={onVisibleChange.bind(this)} visible={this.state.visible} selectedKeys={this.props.selected || [this.props.options[0].key]}>
+      <Dropdown
+        trigger={['click']}
+        overlay={menu}
+        onVisibleChange={onVisibleChange.bind(this)}
+        visible={this.state.visible}
+        selectedKeys={this.props.selected || [this.props.options[0].key]}
+        overlayClassName={this.props.className}>
         {this.props.btnElement}
       </Dropdown>
     )

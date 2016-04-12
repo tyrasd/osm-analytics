@@ -6,7 +6,7 @@ import { overlays } from '../../settings/options'
 
 class OverlayButton extends Component {
   render() {
-    var btn = <button className='overlay'></button>
+    var btn = <p>{overlays.find(overlay => overlay.id === this.props.enabledOverlay).description}&ensp;▾</p>
     return (
       <DropdownButton
         options={overlays}
@@ -15,6 +15,7 @@ class OverlayButton extends Component {
         btnElement={btn}
         selectedKeys={[this.props.enabledOverlay]}
         onSelectionChange={::this.handleDropdownChanges}
+        className="overlays-dropdown"
       />
     )
   }
