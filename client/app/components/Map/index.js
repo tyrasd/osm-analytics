@@ -43,7 +43,7 @@ class Map extends Component {
     map = L.map(
       'map', {
       editable: true,
-      minZoom: 0
+      minZoom: 1
     })
     .setView([0, 35], 2)
     map.zoomControl.setPosition('bottomright')
