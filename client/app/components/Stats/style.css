@@ -37,6 +37,10 @@ div#stats {
       color: white;
     }
   }
+
+  div.chart {
+    cursor: crosshair;
+  }
 }
 
 ul.hot-projects {

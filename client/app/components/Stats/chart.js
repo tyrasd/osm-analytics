@@ -116,7 +116,7 @@ class Histogram extends Component {
 
   render() {
     return (
-      <div ref='chartContainer' />
+      <div ref="chartContainer" className="chart" title="click-drag to select date or experience range"/>
     )
   }
 
