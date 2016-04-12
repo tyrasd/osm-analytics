@@ -199,8 +199,8 @@ class Histogram extends Component {
             {
               "type": "zoom",
               "expr": activityMode
-                ? "+datetime((xs.min-xAnchor)*zoom + xAnchor)"
-                : "(xs.min-xAnchor)*zoom + xAnchor"
+                ? "max(+datetime((xs.min-xAnchor)*zoom + xAnchor), "+(+(new Date("2004-08-09")))+")"
+                : "(xs.min-xAnchor)*zoom + xAnchor" // todo: limit to min bound
             }
           ]
         },
@@ -214,8 +214,8 @@ class Histogram extends Component {
             {
               "type": "zoom",
               "expr": activityMode
-                ? "+datetime((xs.max-xAnchor)*zoom + xAnchor)"
-                : "(xs.max-xAnchor)*zoom + xAnchor"
+                ? "min(+datetime((xs.max-xAnchor)*zoom + xAnchor), "+(+(new Date()))+")"
+                : "(xs.max-xAnchor)*zoom + xAnchor" // todo: limit to max bound
             }
           ]
         },
