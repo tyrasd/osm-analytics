@@ -98,7 +98,8 @@ class Histogram extends Component {
         }))
       } else {
         data.forEach(feature => {
-          let experienceBin = Math.floor(Math.log2(feature.properties._userExperience))
+          // todo: account for different scale range of user experience of different feautres !!!?!
+          let experienceBin = Math.min(22, Math.floor(Math.log2(feature.properties._userExperience)))
           if (!bins[experienceBin]) bins[experienceBin] = 0
           bins[experienceBin]++
         })
@@ -193,14 +194,14 @@ class Histogram extends Component {
           "name": "xMin",
           "init": activityMode
             ? +(new Date("2004-08-09"))
-            : undefined, // todo: ???
+            : 0,
           "streams": [
             //{"type": "delta", "expr": "+datetime(xs.min + (xs.max-xs.min)*delta/width)"},
             {
               "type": "zoom",
               "expr": activityMode
                 ? "max(+datetime((xs.min-xAnchor)*zoom + xAnchor), "+(+(new Date("2004-08-09")))+")"
-                : "(xs.min-xAnchor)*zoom + xAnchor" // todo: limit to min bound
+                : "max((xs.min-xAnchor)*zoom + xAnchor, 0)"
             }
           ]
         },
@@ -208,14 +209,14 @@ class Histogram extends Component {
           "name": "xMax",
           "init": activityMode
             ? +(new Date())
-            : undefined, // todo: ???
+            : 23,
           "streams": [
             //{"type": "delta", "expr": "+datetime(xs.max + (xs.max-xs.min)*delta.x/width)"},
             {
               "type": "zoom",
               "expr": activityMode
                 ? "min(+datetime((xs.max-xAnchor)*zoom + xAnchor), "+(+(new Date()))+")"
-                : "(xs.max-xAnchor)*zoom + xAnchor" // todo: limit to max bound
+                : "min((xs.max-xAnchor)*zoom + xAnchor, 23)"
             }
           ]
         },
@@ -256,6 +257,18 @@ class Histogram extends Component {
           "domainMax": {"signal": "xMax"}
         },
         {
+          "name": "experienceLabels",
+          "type": "ordinal",
+          "domain": [0,23],
+          "range": ["beginner", "power mapper"]
+        },
+        {
+          "name": "experienceLabelAligns",
+          "type": "ordinal",
+          "domain": [0,23],
+          "range": ["left", "right"]
+        },
+        {
           "name": "y",
           "type": "linear",
           "range": "height",
@@ -272,6 +285,12 @@ class Histogram extends Component {
         "scale": "x",
         "grid": false,
         "layer": "back",
+        "values": activityMode
+          ? undefined
+          : [0, 23],
+        "tickSize": activityMode
+          ? undefined
+          : 0,
         "properties": {
            "axis": {
              "stroke": {"value": "#C2C2C2"},
@@ -286,10 +305,61 @@ class Histogram extends Component {
           "labels": {
             "fontSize": {"value": 14},
             "fill": {"value": "#BCBCBC"},
+            "text": activityMode
+              ? undefined
+              : {"scale": "experienceLabels"},
+            "align": activityMode
+              ? undefined
+              : {"scale": "experienceLabelAligns"}
           }
         }
       }],
       "marks": [
+        {
+          "type": "group",
+          "properties": {
+            "enter": {
+              "x": {"value": 0},
+              "width": {"field": {"group": "width"}},
+              "y": {"value": 0},
+              "height": {"field": {"group": "height"}},
+              "clip": {"value": true}
+            }
+          },
+          "marks": [
+            {
+              "type": "rect",
+              "from": {"data": "activity"},
+              "properties": {
+                "enter": {
+                },
+                "update": {
+                  "x": {"scale": "x",
+                    "field": activityMode
+                      ? "day"
+                      : "experience"
+                  },
+                  "width": {"signal": "binWidth"},
+                  "y": {"scale": "y",
+                    "field": activityMode
+                      ? "count_day"
+                      : "count_experience"
+                  },
+                  "y2": {"scale": "y", "value": 0},
+                  "fill": [
+                    {
+                      "test": activityMode
+                      ? "inrange(datum.day, brush_start, brush_end)"
+                      : "inrange(datum.experience, brush_start, brush_end)",
+                        "value": "#DADADA"
+                    },
+                    {"value": "#ACACAC"}
+                  ]
+                }
+              }
+            }
+          ]
+        },
         {
           "type": "group",
           "properties": {
@@ -354,51 +424,6 @@ class Histogram extends Component {
                   ],
                   "y": {"value": 30-8},
                   "height": {"value": 70+2*8}
-                }
-              }
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "properties": {
-            "enter": {
-              "x": {"value": 0},
-              "width": {"field": {"group": "width"}},
-              "y": {"value": 0},
-              "height": {"field": {"group": "height"}},
-              "clip": {"value": true}
-            }
-          },
-          "marks": [
-            {
-              "type": "rect",
-              "from": {"data": "activity"},
-              "properties": {
-                "enter": {
-                },
-                "update": {
-                  "x": {"scale": "x",
-                    "field": activityMode
-                      ? "day"
-                      : "experience"
-                  },
-                  "width": {"signal": "binWidth"},
-                  "y": {"scale": "y",
-                    "field": activityMode
-                      ? "count_day"
-                      : "count_experience"
-                  },
-                  "y2": {"scale": "y", "value": 0},
-                  "fill": [
-                    {
-                      "test": activityMode
-                      ? "inrange(datum.day, brush_start, brush_end)"
-                      : "inrange(datum.experience, brush_start, brush_end)",
-                        "value": "#DADADA"
-                    },
-                    {"value": "#ACACAC"}
-                  ]
                 }
               }
             }
