@@ -83,14 +83,29 @@ class Histogram extends Component {
       let bins = {}
       if (mode === 'recency') {
         data.forEach(feature => {
-          let day = new Date(feature.properties._timestamp*1000)
-          day.setMilliseconds(0)
-          day.setSeconds(0)
-          day.setMinutes(0)
-          day.setHours(0)
-          day = +day
-          if (!bins[day]) bins[day] = 0
-          bins[day]++
+          if (feature.properties._count) {
+            let samples = feature.properties._timestamps.split(';').map(Number)
+            const countPerSample = feature.properties._count / samples.length
+            samples.forEach(function(sample) {
+              let day = new Date(sample*1000)
+              day.setMilliseconds(0)
+              day.setSeconds(0)
+              day.setMinutes(0)
+              day.setHours(0)
+              day = +day
+              if (!bins[day]) bins[day] = 0
+              bins[day] += countPerSample
+            })
+          } else {
+            let day = new Date(feature.properties._timestamp*1000)
+            day.setMilliseconds(0)
+            day.setSeconds(0)
+            day.setMinutes(0)
+            day.setHours(0)
+            day = +day
+            if (!bins[day]) bins[day] = 0
+            bins[day]++
+          }
         })
         bins = Object.keys(bins).map(day => ({
           day: +day,
@@ -98,10 +113,21 @@ class Histogram extends Component {
         }))
       } else {
         data.forEach(feature => {
-          // todo: account for different scale range of user experience of different feautres !!!?!
-          let experienceBin = Math.min(22, Math.floor(Math.log2(feature.properties._userExperience)))
-          if (!bins[experienceBin]) bins[experienceBin] = 0
-          bins[experienceBin]++
+          if (feature.properties._count) {
+            let samples = feature.properties._userExperiences.split(';').map(Number)
+            const countPerSample = feature.properties._count / samples.length
+            samples.forEach(function(sample) {
+              // todo: account for different scale range of user experience of different feautres !!!?!
+              let experienceBin = Math.min(22, Math.floor(Math.log2(sample)))
+              if (!bins[experienceBin]) bins[experienceBin] = 0
+              bins[experienceBin] += countPerSample
+            })
+          } else {
+            // todo: account for different scale range of user experience of different feautres !!!?!
+            let experienceBin = Math.min(22, Math.floor(Math.log2(feature.properties._userExperience)))
+            if (!bins[experienceBin]) bins[experienceBin] = 0
+            bins[experienceBin]++
+          }
         })
         bins = Object.keys(bins).map(experience => ({
           experience: +experience,

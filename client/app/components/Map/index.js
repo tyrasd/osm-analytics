@@ -171,18 +171,31 @@ class Map extends Component {
   }
 
   setTimeFilter(timeFilter) {
-    const highlightLayers = glStyles(this.props.map.filters).layers.map(l => l.id).filter(id => id.match(/highlight/))
+    const highlightLayers = glStyles(this.props.map.filters).layers.filter(l => l.id.match(/highlight/))
     if (timeFilter === null) {
       // reset time filter
       highlightLayers.forEach(highlightLayer => {
-        glLayer._glMap.setFilter(highlightLayer, ["==", "_timestamp", -1])
+        glLayer._glMap.setFilter(highlightLayer.id, ["==", "_timestamp", -1])
       })
     } else {
       highlightLayers.forEach(highlightLayer => {
-        glLayer._glMap.setFilter(highlightLayer, ["all",
-          [">=", "_timestamp", timeFilter[0]],
-          ["<=", "_timestamp", timeFilter[1]]
-        ])
+        let layerFilter = ["any",
+          ["all",
+            [">=", "_timestamp", timeFilter[0]],
+            ["<=", "_timestamp", timeFilter[1]]
+          ],
+          ["all",
+            [">=", "_timestampMax", timeFilter[0]],
+            ["<=", "_timestampMin", timeFilter[1]]
+          ]
+        ]
+        if (highlightLayer.densityFilter) {
+          layerFilter = ["all",
+            highlightLayer.densityFilter,
+            layerFilter
+          ]
+        }
+        glLayer._glMap.setFilter(highlightLayer.id, layerFilter)
       })
     }
   }

@@ -10,7 +10,6 @@ import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures, { getRegionZoom } from './searchFeatures'
-import getExtrapolationFactor from './extrapolate'
 import { filters } from '../../settings/options'
 import style from './style.css'
 
@@ -56,11 +55,19 @@ class Stats extends Component {
           feature.properties._timestamp >= this.props.stats.timeFilter[0]
           && feature.properties._timestamp <= this.props.stats.timeFilter[1]
         )
+        || (
+          feature.properties._timestampMax >= this.props.stats.timeFilter[0]
+          && feature.properties._timestampMin <= this.props.stats.timeFilter[1]
+        )
       ).filter(feature =>
         this.props.stats.experienceFilter === null
         || (
           feature.properties._userExperience >= this.props.stats.experienceFilter[0]
           && feature.properties._userExperience <= this.props.stats.experienceFilter[1]
+        )
+        || (
+          feature.properties._userExperienceMax >= this.props.stats.experienceFilter[0]
+          && feature.properties._userExperienceMin <= this.props.stats.experienceFilter[1]
         )
       )
     })
@@ -72,7 +79,10 @@ class Stats extends Component {
         _contributors[f.properties._uid] = true
       })
     })
-    const numContribuors = Object.keys(_contributors).length
+    var numContribuors = Object.keys(_contributors).length
+    if (numContribuors === 1 && Object.keys(_contributors)[0] === "undefined") {
+      numContribuors = null
+    }
 
     // todo: loading animation if region is not yet fully loaded
     return (
@@ -82,18 +92,12 @@ class Stats extends Component {
             <OverlayButton enabledOverlay={this.props.map.overlay} {...this.props.actions}/>
           </li>
         {features.map(filter => {
-          let extrapolationFactor = this.props.map.region
-            ? getExtrapolationFactor(
-              filter.filter,
-              getRegionZoom(polygon(regionToCoords(this.props.map.region)))
-            )
-            : 1
           return (<li key={filter.filter}>
-            <span className="number" title={extrapolationFactor}>{
+            <span className="number">{
               Number((filter.filter === 'highways'
                 ? filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)
-                : filter.highlightedFeatures.length)
-              * extrapolationFactor).toFixed(0) // todo: calculate uncertainty
+                : filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._count || 1), 0))
+              ).toFixed(0)
             }</span><br/>
             <span className="descriptor">{
               (filter.filter === 'highways' ? 'km of ' : '')
@@ -102,7 +106,9 @@ class Stats extends Component {
           </li>)
         })}
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
+        {numContribuors === null ? '' : (
           <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
+        )}
         </ul>
 
         <Modal
