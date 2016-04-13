@@ -131,9 +131,7 @@ class Map extends Component {
   }
 
   mapSetRegion(region) {
-    var oldGeometry = null
     if (boundsLayer !== null) {
-      oldGeometry = boundsLayer.toGeoJSON();
       map.removeLayer(boundsLayer)
     }
     if (region === null) return
@@ -148,7 +146,7 @@ class Map extends Component {
     // set map view to region
     try { // geometry calculcation are a bit hairy for invalid geometries (which may happen during polygon editing)
       let viewPort = bboxPolygon(map.getBounds().toBBoxString().split(',').map(Number))
-      let xorAreaViewPort = erase(viewPort, boundsLayer.toGeoJSON())
+      let xorAreaViewPort = erase(viewPort, L.polygon(boundsLayer.getLatLngs()[1]).toGeoJSON())
       let fitboundsFunc
       if (moveDirectly) {
         fitboundsFunc = ::map.fitBounds
