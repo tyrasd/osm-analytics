@@ -4,10 +4,18 @@
     "osm-highways-raw": {
       "type": "vector",
       "tiles": [
-        "http://52.207.244.74:7778/highways2/{z}/{x}/{y}.pbf"
+        "http://52.207.244.74:7778/highways/{z}/{x}/{y}.pbf"
+      ],
+      "minzoom": 13,
+      "maxzoom": 14
+    },
+    "osm-highways-aggregated": {
+      "type": "vector",
+      "tiles": [
+        "http://52.207.244.74:7778/highways/{z}/{x}/{y}.pbf"
       ],
       "minzoom": 0,
-      "maxzoom": 14
+      "maxzoom": 12
     }
   },
   "layers": [{
@@ -31,5 +39,273 @@
       "line-opacity": 1
     },
     "filter": ["==", "_timestamp", -1]
+  },
+
+  {
+    "id": "highways-aggregated-0",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": {
+        "base": 1,
+        "stops": [[10, 1.0], [13, 2.0]]
+      },
+      "line-opacity": {
+        "base": 1,
+        "stops": [[10, 0.0], [13, 1.0]]
+      }
+    },
+    "filter": ["all",
+      ["<", "_lineDistance", 0.75]
+    ]
+  }, {
+    "id": "highways-aggregated-1",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": {
+        "base": 1,
+        "stops": [[8, 1.0], [11, 2.0], [12, 2.0]]
+      },
+      "line-opacity": {
+        "base": 1,
+        "stops": [[8, 0.0], [11, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 0.75],
+      ["<", "_lineDistance", 4]
+    ]
+  }, {
+    "id": "highways-aggregated-2",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": {
+        "base": 1,
+        "stops": [[6, 1.0], [9, 2.0], [12, 2.0]]
+      },
+      "line-opacity": {
+        "base": 1,
+        "stops": [[6, 0.0], [9, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 4],
+      ["<", "_lineDistance", 16]
+    ]
+  }, {
+    "id": "highways-aggregated-3",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": {
+        "base": 1,
+        "stops": [[4, 1.0], [7, 2.0], [12, 2.0]]
+      },
+      "line-opacity": {
+        "base": 1,
+        "stops": [[4, 0.0], [7, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 16],
+      ["<", "_lineDistance", 128]
+    ]
+  }, {
+    "id": "highways-aggregated-4",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": {
+        "base": 1,
+        "stops": [[2, 1.0], [5, 2.0], [12, 2.0]]
+      },
+      "line-opacity": {
+        "base": 1,
+        "stops": [[2, 0.0], [5, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 128],
+      ["<", "_lineDistance", 512]
+    ]
+  }, {
+    "id": "highways-aggregated-5",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": 2,
+      "line-opacity": 1
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 512],
+      ["<", "_lineDistance", 4096]
+    ]
+  }, {
+    "id": "highways-aggregated-6",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#9e9ac8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[0, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["all",
+      [">=", "_lineDistance", 4096]
+    ]
+  },
+
+  {
+    "id": "highways-aggregated-highlight-0",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[10, 0.0], [13, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      ["<", "_lineDistance", 0.75]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-1",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[8, 0.0], [11, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 0.75],
+      ["<", "_lineDistance", 4]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-2",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[6, 0.0], [9, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 4],
+      ["<", "_lineDistance", 16]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-3",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[4, 0.0], [7, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 16],
+      ["<", "_lineDistance", 128]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-4",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[2, 0.0], [5, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 128],
+      ["<", "_lineDistance", 512]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-5",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": {
+        "base": 1,
+        "stops": [[0, 0.0], [3, 1.0], [12, 1.0]]
+      }
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 512],
+      ["<", "_lineDistance", 4096]
+    ]
+  }, {
+    "id": "highways-aggregated-highlight-6",
+    "type": "line",
+    "source": "osm-highways-aggregated",
+    "source-layer": "osm",
+    "maxzoom": 12.01,
+    "paint": {
+      "line-color": "#5CBAD8",
+      "line-width": 2,
+      "line-opacity": 1
+    },
+    "filter": ["==", "_timestamp", -1],
+    "densityFilter": ["all",
+      [">=", "_lineDistance", 4096]
+    ]
   }]
 }

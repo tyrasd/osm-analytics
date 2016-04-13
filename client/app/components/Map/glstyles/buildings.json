@@ -38,7 +38,9 @@
       "fill-opacity": 1
     },
     "filter": ["==", "_timestamp", -1]
-  }, {
+  },
+
+  {
     "id": "buildings-aggregated-0",
     "type": "fill",
     "source": "osm-buildings-aggregated",

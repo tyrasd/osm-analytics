@@ -78,7 +78,7 @@ function getAndCacheTile(tile, filter, callback) {
     data.features = data.features.map(feature => {
       var centr = centroid(feature)
       centr.properties = feature.properties
-      centr.properties._length = lineDistance(feature, 'kilometers') // todo: move to preprocessing
+      centr.properties._length = centr.properties._lineDistance || lineDistance(feature, 'kilometers')
       return centr
     })
     cache[filter][tile.hash] = data
