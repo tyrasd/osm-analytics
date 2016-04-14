@@ -64,6 +64,8 @@ class SearchBox extends Component {
     })
   }
   goOSM(where) {
+    var setState = ::this.setState
+    setState({ loading: true })
     var setRegion = this.props.setRegion
     request
     .get('https://nominatim.openstreetmap.org/search')
@@ -99,6 +101,7 @@ class SearchBox extends Component {
             }
           }
         }
+        setState({ loading: false })
         setRegion({
           type: 'polygon',
           coords: coords.slice(0,-1)
@@ -125,6 +128,7 @@ class SearchBox extends Component {
             onChange: value => ::this.setState({ currentValue: value })
           }}
         />
+        <span className={'search-icon' + (this.state.loading ? ' loading' : '')}></span>
       </div>
     )
   }

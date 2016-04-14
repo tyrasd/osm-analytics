@@ -1,40 +1,65 @@
-div.search > .react-autosuggest {
-  input.searchbox {
-    width: 300px;
-    background-image: url("../../assets/search.svg");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-  }
-  ul {
-    box-sizing: border-box;
-    display: block;
-    position: absolute;
-    top: 20px;
-    background-color: white;
-    border-radius: 4px;
-    max-height: 300px;
-    width: 300px;
-    overflow-y: scroll;
-    padding: 0;
-    margin-top: 20px;
-    border: 1px solid #BECAD6;
-    padding-top: 10px;
-
-    &:before {
-      content: 'HOT Projects';
-      display: block;
-      padding: 10px 20px;
-      color: #544F4F;
+div.search {
+  & > .react-autosuggest {
+    input.searchbox {
+      width: 300px;
     }
 
-    li {
+    ul {
+      box-sizing: border-box;
       display: block;
-      list-style: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      &:hover {
-        background-color: #F3F5F5;
+      position: absolute;
+      top: 20px;
+      background-color: white;
+      border-radius: 4px;
+      max-height: 300px;
+      width: 300px;
+      overflow-y: scroll;
+      padding: 0;
+      margin-top: 20px;
+      border: 1px solid #BECAD6;
+      padding-top: 10px;
+
+      &:before {
+        content: 'Press Enter to search for this region on OSM, or select a HOT project below:';
+        display: block;
+        padding: 8px 20px;
+        color: #544F4F;
+        font-style: italic;
+      }
+
+      li {
+        display: block;
+        list-style: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        &:hover {
+          background-color: #F3F5F5;
+        }
       }
     }
   }
+
+  span.search-icon {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0.2;
+    height: 35px;
+    width: 35px;
+    background-image: url("../../assets/search.svg");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transform: rotate(0deg);
+    transform-origin: 15.5px 17.5px;
+    &.loading {
+      animation: spin 0.8s infinite linear;
+    }
+  }
+}
+
+
+@keyframes spin {
+  0%   {transform: rotate(0deg)}
+  100% {transform: rotate(360deg)}
 }
