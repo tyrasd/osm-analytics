@@ -27,9 +27,9 @@ class SearchBox extends Component {
     this.setState({active: true})
   }
   onKeyPress(event) {
-    if (event.which === 13) {
-      var regionName = this.state.currentValue
-      // enter key
+    // enter key or search icon clicked
+    var regionName = this.state.currentValue
+    if (regionName && (event.type === 'click' || event.which === 13)) {
       if (regionName.match(/^\d+$/)) {
         let best = this.getSuggestions(regionName)[0]
         this.setState({currentValue: best.name})
@@ -128,7 +128,7 @@ class SearchBox extends Component {
             onChange: value => ::this.setState({ currentValue: value })
           }}
         />
-        <span className={'search-icon' + (this.state.loading ? ' loading' : '')}></span>
+        <span className={'search-icon' + (this.state.loading ? ' loading' : '')} onClick={::this.onKeyPress}></span>
       </div>
     )
   }

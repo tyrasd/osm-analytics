@@ -44,7 +44,6 @@ div.search {
     position: absolute;
     top: 0;
     right: 0;
-    opacity: 0.2;
     height: 35px;
     width: 35px;
     background-image: url("../../assets/search.svg");
