@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import * as request from 'superagent'
+import superagentPromisePlugin from 'superagent-promise-plugin'
 import osmtogeojson from 'osmtogeojson'
 import { simplify, polygon } from 'turf'
 import Fuse from 'fuse.js'
@@ -27,6 +28,7 @@ class SearchBox extends Component {
     this.setState({active: true})
   }
   onKeyPress(event) {
+    if (this.state.errored) this.setState({ errored: false })
     // enter key or search icon clicked
     var regionName = this.state.currentValue
     if (regionName && (event.type === 'click' || event.which === 13)) {
@@ -73,40 +75,44 @@ class SearchBox extends Component {
       format: 'json',
       q: where
     })
-    .end(function(err, res) {
-      if (err) throw new Error(err)
+    .use(superagentPromisePlugin)
+    .then(function(res) {
       var hits = res.body.filter(r => r.osm_type !== 'node')
-      if (hits.length === 0) throw new Error('nothing found for place name '+regionName)
-      request
+      if (hits.length === 0) throw new Error('nothing found for place name '+where)
+      return request
       .get('https://overpass-api.de/api/interpreter')
       .query({
         data: '[out:json][timeout:3];'+hits[0].osm_type+'('+hits[0].osm_id+');out geom;'
       })
-      .end(function(err, res) {
-        if (err) throw new Error(err)
-        let osmFeature = osmtogeojson(res.body).features[0]
-        if (!(osmFeature.geometry.type === 'Polygon' || osmFeature.geometry.type === 'MultiPolygon')) throw new Error('invalid geometry')
-        let coords = osmFeature.geometry.coordinates
-        if (osmFeature.geometry.type === 'MultiPolygon') {
-          coords = coords.sort((p1,p2) => p2[0].length - p1[0].length)[0] // choose polygon with the longest outer ring
-        }
-        coords = coords[0]
-        const maxNodeCount = 40 // todo: setting
-        if (coords.length > maxNodeCount) {
-          for (let simpl = 0.00001; simpl<1; simpl*=1.4) {
-            let simplifiedFeature = simplify(polygon([coords]), simpl)
-            if (simplifiedFeature.geometry.coordinates[0].length <= maxNodeCount) {
-              coords = simplifiedFeature.geometry.coordinates[0]
-              break;
-            }
+      .use(superagentPromisePlugin)
+    })
+    .then(function(res) {
+      var osmFeature = osmtogeojson(res.body).features[0]
+      if (!(osmFeature.geometry.type === 'Polygon' || osmFeature.geometry.type === 'MultiPolygon')) throw new Error('invalid geometry')
+      var coords = osmFeature.geometry.coordinates
+      if (osmFeature.geometry.type === 'MultiPolygon') {
+        coords = coords.sort((p1,p2) => p2[0].length - p1[0].length)[0] // choose polygon with the longest outer ring
+      }
+      coords = coords[0]
+      const maxNodeCount = 40 // todo: setting
+      if (coords.length > maxNodeCount) {
+        for (let simpl = 0.00001; simpl<100; simpl*=1.4) {
+          let simplifiedFeature = simplify(polygon([coords]), simpl)
+          if (simplifiedFeature.geometry.coordinates[0].length <= maxNodeCount) {
+            coords = simplifiedFeature.geometry.coordinates[0]
+            break;
           }
         }
-        setState({ loading: false })
-        setRegion({
-          type: 'polygon',
-          coords: coords.slice(0,-1)
-        })
+      }
+      setState({ loading: false })
+      setRegion({
+        type: 'polygon',
+        coords: coords.slice(0,-1)
       })
+    })
+    .catch(function(err) {
+      console.error('error during osm region search:', err)
+      setState({ loading: false, errored: true })
     })
   }
 
@@ -128,7 +134,10 @@ class SearchBox extends Component {
             onChange: value => ::this.setState({ currentValue: value })
           }}
         />
-        <span className={'search-icon' + (this.state.loading ? ' loading' : '')} onClick={::this.onKeyPress}></span>
+        <span
+          className={'search-icon' + (this.state.loading ? ' loading' : '') + (this.state.errored ? ' errored' : '')}
+          onClick={::this.onKeyPress}>
+        </span>
       </div>
     )
   }
