@@ -6,6 +6,7 @@ import { polygon } from 'turf'
 import { queue } from 'd3-queue'
 import moment from 'moment'
 import * as MapActions from '../../actions/map'
+import * as StatsActions from '../../actions/stats'
 import OverlayButton from '../OverlayButton'
 import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
@@ -97,7 +98,7 @@ class Stats extends Component {
       <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
           <li>
-            <OverlayButton enabledOverlay={this.props.map.overlay} {...this.props.actions}/>
+            <OverlayButton enabledOverlay={this.props.map.overlay} {...this.props.actions} {...this.props.statsActions}/>
             {timeFilter}
           </li>
         {features.map(filter => {
@@ -194,7 +195,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(MapActions, dispatch)
+    actions: bindActionCreators(MapActions, dispatch),
+    statsActions: bindActionCreators(StatsActions, dispatch)
   }
 }
 

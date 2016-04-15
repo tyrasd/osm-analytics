@@ -21,7 +21,12 @@ class OverlayButton extends Component {
   }
 
   handleDropdownChanges(selectedKeys) {
-    this.props.setOverlay(selectedKeys[0])
+    const selectedOverlay = selectedKeys[0]
+    this.props.setOverlay(selectedOverlay)
+    if (selectedOverlay !== this.props.enabledOverlay) {
+      this.props.setExperienceFilter(null)
+      this.props.setTimeFilter(null)
+    }
   }
 }
 
