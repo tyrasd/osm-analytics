@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Modal from 'react-modal';
 import { polygon } from 'turf'
 import { queue } from 'd3-queue'
+import moment from 'moment'
 import * as MapActions from '../../actions/map'
 import OverlayButton from '../OverlayButton'
 import Histogram from './chart'
@@ -84,12 +85,20 @@ class Stats extends Component {
       numContribuors = null
     }
 
+    var timeFilter = ''
+    if (this.props.stats.timeFilter) {
+      timeFilter = (
+        <span className="descriptor">{moment.unix(this.props.stats.timeFilter[0]).format('YYYY MMMM D')} – {moment.unix(this.props.stats.timeFilter[1]).format('YYYY MMMM D')}</span>
+      )
+    }
+
     // todo: loading animation if region is not yet fully loaded
     return (
       <div id="stats" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics">
           <li>
             <OverlayButton enabledOverlay={this.props.map.overlay} {...this.props.actions}/>
+            {timeFilter}
           </li>
         {features.map(filter => {
           return (<li key={filter.filter}>
