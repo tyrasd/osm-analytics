@@ -104,10 +104,10 @@ class Stats extends Component {
         {features.map(filter => {
           return (<li key={filter.filter}>
             <span className="number">{
-              Number((filter.filter === 'highways'
+              numberWithCommas(Number((filter.filter === 'highways'
                 ? filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)
                 : filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._count || 1), 0))
-              ).toFixed(0)
+              ).toFixed(0))
             }</span><br/>
             <span className="descriptor">{
               (filter.filter === 'highways' ? 'km of ' : '')
@@ -117,7 +117,7 @@ class Stats extends Component {
         })}
           <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
         {numContribuors === null ? '' : (
-          <li><span className="number">{numContribuors}</span><br/><span className="descriptor">Contributors</span></li>
+          <li><span className="number">{numberWithCommas(numContribuors)}</span><br/><span className="descriptor">Contributors</span></li>
         )}
         </ul>
 
@@ -183,6 +183,11 @@ class Stats extends Component {
     this.setState({ hotProjectsModalOpen: false });
   }
 
+}
+
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 
