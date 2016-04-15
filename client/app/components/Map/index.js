@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import style from './style.css'
 import glStyles from './glstyles'
+import Swiper from './swiper'
 import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox/index.js'
 import { bindActionCreators } from 'redux'
@@ -16,6 +17,7 @@ import * as _leafleteditable from '../../libs/Leaflet.Editable.js'
 
 var map // Leaflet map object
 var glLayer // mapbox-gl layer
+var glLayer2 // second mapbox-gl layer for before/after view
 var boundsLayer = null // selected region layer
 var moveDirectly = false
 
@@ -24,7 +26,12 @@ class Map extends Component {
     const { map, view, actions } = this.props
     return (
       <div className={view+'View'}>
-        <div id="map"></div>
+        <div id="map">
+        </div>
+        {this.props.view === 'compare'
+          ? <Swiper onMoved={::this.swiperMoved}/>
+          : ''
+        }
         <SearchBox className="searchbox" selectedRegion={map.region} {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
@@ -38,7 +45,6 @@ class Map extends Component {
       //glStyle.sources['osm-buildings-aggregated'].tiles[0] = glStyle.sources['osm-buildings-aggregated'].tiles[0].replace('52.50.120.37', 'localhost')
       //glStyle.sources['osm-buildings-raw'].tiles[0] = glStyle.sources['osm-buildings-raw'].tiles[0].replace('52.50.120.37', 'localhost')
     }
-
 
     map = L.map(
       'map', {
@@ -63,6 +69,19 @@ class Map extends Component {
       style: glStyles(this.props.map.filters),
       hash: false
     }).addTo(map)
+
+    if (this.props.view === 'compare') {
+      var glLayer2Style = JSON.parse(JSON.stringify(glStyles(this.props.map.filters)).replace(/osm-buildings-raw/g, 'osm-buildings-raw2011').replace(/osm-buildings-aggregated/g, 'osm-buildings-aggregated2011'))
+      glLayer2Style.sources['osm-buildings-raw2011'].tiles[0] = glLayer2Style.sources['osm-buildings-raw2011'].tiles[0].replace('buildings', 'buildings2011')
+      glLayer2Style.sources['osm-buildings-aggregated2011'].tiles[0] = glLayer2Style.sources['osm-buildings-aggregated2011'].tiles[0].replace('buildings', 'buildings2011')
+      glLayer2 = L.mapboxGL({
+        updateInterval: 0,
+        accessToken: mapbox_token,
+        style: glLayer2Style,
+        hash: false
+      }).addTo(map)
+      this.swiperMoved(window.innerWidth/2)
+    }
 
     if (this.props.region) {
       this.props.actions.setRegionFromUrl(this.props.region)
@@ -213,6 +232,16 @@ class Map extends Component {
         ])
       })
     }
+  }
+
+  swiperMoved(x) {
+    if (!map) return
+    const mapPanePos = map._getMapPanePos()
+    const nw = map.containerPointToLayerPoint([0, 0])
+    const se = map.containerPointToLayerPoint(map.getSize())
+    const clipX = nw.x + (se.x - nw.x) * x / window.innerWidth
+    glLayer2._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, clipX+mapPanePos.x, se.y+mapPanePos.y, nw.x+mapPanePos.x].join('px,') + 'px)'
+    glLayer._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, se.x+mapPanePos.x, se.y+mapPanePos.y, clipX+mapPanePos.x].join('px,') + 'px)'
   }
 
 }
