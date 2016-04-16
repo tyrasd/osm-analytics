@@ -120,6 +120,7 @@ class Stats extends Component {
           <li><span className="number">{numberWithCommas(numContribuors)}</span><br/><span className="descriptor">Contributors</span></li>
         )}
         </ul>
+        <button className="compare-toggle" onClick={::this.enableCompareView}>Compare Time Periods</button>
 
         <Modal
           isOpen={this.state.hotProjectsModalOpen}
@@ -176,11 +177,15 @@ class Stats extends Component {
 
 
   openHotModal() {
-    this.setState({ hotProjectsModalOpen: true });
+    this.setState({ hotProjectsModalOpen: true })
   }
 
   closeHotModal() {
-    this.setState({ hotProjectsModalOpen: false });
+    this.setState({ hotProjectsModalOpen: false })
+  }
+
+  enableCompareView() {
+    this.props.actions.setView('compare')
   }
 
 }
