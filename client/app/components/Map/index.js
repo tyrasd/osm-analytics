@@ -17,7 +17,7 @@ import * as _leafleteditable from '../../libs/Leaflet.Editable.js'
 
 var map // Leaflet map object
 var glLayer // mapbox-gl layer
-var glLayer2 // second mapbox-gl layer for before/after view
+var glCompareLayers // mapbox-gl layers for before/after view
 var boundsLayer = null // selected region layer
 var moveDirectly = false
 
@@ -63,23 +63,45 @@ class Map extends Component {
       attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
         zIndex: -1
     }).addTo(map)
+
     glLayer = L.mapboxGL({
       updateInterval: 0,
       accessToken: mapbox_token,
       style: glStyles(this.props.map.filters),
       hash: false
-    }).addTo(map)
+    })
 
-    if (this.props.view === 'compare') {
-      var glLayer2Style = JSON.parse(JSON.stringify(glStyles(this.props.map.filters)).replace(/osm-buildings-raw/g, 'osm-buildings-raw2011').replace(/osm-buildings-aggregated/g, 'osm-buildings-aggregated2011'))
-      glLayer2Style.sources['osm-buildings-raw2011'].tiles[0] = glLayer2Style.sources['osm-buildings-raw2011'].tiles[0].replace('buildings', 'buildings2011')
-      glLayer2Style.sources['osm-buildings-aggregated2011'].tiles[0] = glLayer2Style.sources['osm-buildings-aggregated2011'].tiles[0].replace('buildings', 'buildings2011')
-      glLayer2 = L.mapboxGL({
+    var glCompareLayerStyles = {
+      before: JSON.parse(JSON.stringify(glStyles(this.props.map.filters))),
+      after: JSON.parse(JSON.stringify(glStyles(this.props.map.filters)))
+    }
+    glCompareLayerStyles.before.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
+    glCompareLayerStyles.after.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
+    glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0].replace('buildings', 'buildings2011')
+    glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0].replace('buildings', 'buildings2011')
+    //glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0].replace('buildings', 'buildings2011')
+    //glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0].replace('buildings', 'buildings2011')
+    glCompareLayers = {
+      before: L.mapboxGL({
         updateInterval: 0,
         accessToken: mapbox_token,
-        style: glLayer2Style,
+        style: glCompareLayerStyles.before,
         hash: false
-      }).addTo(map)
+      }),
+      after: L.mapboxGL({
+        updateInterval: 0,
+        accessToken: mapbox_token,
+        style: glCompareLayerStyles.after,
+        hash: false
+      })
+    }
+
+    if (this.props.view === 'country' || this.props.view === 'default') {
+      glLayer.addTo(map)
+    }
+    if (this.props.view === 'compare') {
+      glCompareLayers.before.addTo(map)
+      glCompareLayers.after.addTo(map)
       this.swiperMoved(window.innerWidth/2)
     }
 
@@ -119,6 +141,24 @@ class Map extends Component {
     }
     if (nextProps.stats.experienceFilter !== this.props.stats.experienceFilter) {
       this.setExperienceFilter(nextProps.stats.experienceFilter)
+    }
+    // check for switched map views (country/compare)
+    if (nextProps.view !== this.props.view) {
+      if (this.props.view === 'compare'
+        && (nextProps.view === 'country' || nextProps.view === 'default')) {
+        glCompareLayers.before.removeFrom(map)
+        glCompareLayers.after.removeFrom(map)
+        glLayer.addTo(map)
+        glLayer._update()
+      }
+      if (nextProps.view === 'compare') {
+        glLayer.removeFrom(map)
+        glCompareLayers.before.addTo(map)
+        glCompareLayers.after.addTo(map)
+        glCompareLayers.before._update()
+        glCompareLayers.after._update()
+        this.swiperMoved(window.innerWidth/2)
+      }
     }
   }
 
@@ -240,8 +280,8 @@ class Map extends Component {
     const nw = map.containerPointToLayerPoint([0, 0])
     const se = map.containerPointToLayerPoint(map.getSize())
     const clipX = nw.x + (se.x - nw.x) * x / window.innerWidth
-    glLayer2._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, clipX+mapPanePos.x, se.y+mapPanePos.y, nw.x+mapPanePos.x].join('px,') + 'px)'
-    glLayer._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, se.x+mapPanePos.x, se.y+mapPanePos.y, clipX+mapPanePos.x].join('px,') + 'px)'
+    glCompareLayers.before._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, clipX+mapPanePos.x, se.y+mapPanePos.y, nw.x+mapPanePos.x].join('px,') + 'px)'
+    glCompareLayers.after._glContainer.style.clip = 'rect(' + [nw.y+mapPanePos.y, se.x+mapPanePos.x, se.y+mapPanePos.y, clipX+mapPanePos.x].join('px,') + 'px)'
   }
 
 }
