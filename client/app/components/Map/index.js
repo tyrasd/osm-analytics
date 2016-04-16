@@ -146,8 +146,12 @@ class Map extends Component {
     }
     if (nextProps.map.times !== this.props.map.times) {
       let glCompareLayerStyles = getCompareStyles(nextProps.map.filters, nextProps.map.times)
-      glCompareLayers.before.setStyle(glCompareLayerStyles.before)
-      glCompareLayers.after.setStyle(glCompareLayerStyles.after)
+      if (nextProps.map.times[0] !== this.props.map.times[0]) {
+        glCompareLayers.before.setStyle(glCompareLayerStyles.before)
+      }
+      if (nextProps.map.times[1] !== this.props.map.times[1]) {
+        glCompareLayers.after.setStyle(glCompareLayerStyles.after)
+      }
     }
     // check for changed time/experience filter
     if (nextProps.stats.timeFilter !== this.props.stats.timeFilter) {
