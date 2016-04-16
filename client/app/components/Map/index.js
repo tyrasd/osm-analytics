@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import style from './style.css'
-import glStyles from './glstyles'
+import glStyles, { getCompareStyles } from './glstyles'
 import Swiper from './swiper'
 import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox/index.js'
@@ -71,16 +71,7 @@ class Map extends Component {
       hash: false
     })
 
-    var glCompareLayerStyles = {
-      before: JSON.parse(JSON.stringify(glStyles(this.props.map.filters))),
-      after: JSON.parse(JSON.stringify(glStyles(this.props.map.filters)))
-    }
-    glCompareLayerStyles.before.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
-    glCompareLayerStyles.after.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
-    glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0].replace('buildings', 'buildings2011')
-    glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0].replace('buildings', 'buildings2011')
-    //glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0].replace('buildings', 'buildings2011')
-    //glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0].replace('buildings', 'buildings2011')
+    const glCompareLayerStyles = getCompareStyles(this.props.map.filters, this.props.map.times)
     glCompareLayers = {
       before: L.mapboxGL({
         updateInterval: 0,
@@ -96,15 +87,18 @@ class Map extends Component {
       })
     }
 
-    if (this.props.map.view === 'country' || this.props.map.view === 'default') {
-      glLayer.addTo(map)
-    }
-    if (this.props.map.view === 'compare') {
-      glCompareLayers.before.addTo(map)
-      glCompareLayers.after.addTo(map)
-      this.swiperMoved(window.innerWidth/2)
-    }
+    //if (this.props.map.view === 'country' || this.props.map.view === 'default') {
+    //  glLayer.addTo(map)
+    //}
+    //if (this.props.map.view === 'compare') {
+    //  glCompareLayers.before.addTo(map)
+    //  glCompareLayers.after.addTo(map)
+    //  this.swiperMoved(window.innerWidth/2)
+    //}
 
+    if (this.props.view) {
+      this.props.actions.setViewFromUrl(this.props.view)
+    }
     if (this.props.region) {
       this.props.actions.setRegionFromUrl(this.props.region)
       moveDirectly = true
@@ -114,6 +108,9 @@ class Map extends Component {
     }
     if (this.props.overlay) {
       this.props.actions.setOverlayFromUrl(this.props.overlay)
+    }
+    if (this.props.times) {
+      this.props.actions.setTimesFromUrl(this.props.times)
     }
   }
 
@@ -134,12 +131,23 @@ class Map extends Component {
     if (nextProps.view !== this.props.view) {
       this.props.actions.setViewFromUrl(nextProps.view)
     }
+    if (nextProps.times !== this.props.times) {
+      this.props.actions.setTimesFromUrl(nextProps.times)
+    }
     // check for changed map parameters
     if (nextProps.map.region !== this.props.map.region) {
       this.mapSetRegion(nextProps.map.region)
     }
-    if (nextProps.map.filters !== this.props.map.filters) {
-      glLayer._glMap.setStyle(glStyles(nextProps.map.filters, nextProps.stats.timeFilter, nextProps.stats.experienceFilter))
+    if (nextProps.map.filters.join() !== this.props.map.filters.join()) { // todo: handle this in reducer?
+      glLayer.setStyle(glStyles(nextProps.map.filters, nextProps.stats.timeFilter, nextProps.stats.experienceFilter))
+      let glCompareLayerStyles = getCompareStyles(nextProps.map.filters, nextProps.map.times)
+      glCompareLayers.before.setStyle(glCompareLayerStyles.before)
+      glCompareLayers.after.setStyle(glCompareLayerStyles.after)
+    }
+    if (nextProps.map.times !== this.props.map.times) {
+      let glCompareLayerStyles = getCompareStyles(nextProps.map.filters, nextProps.map.times)
+      glCompareLayers.before.setStyle(glCompareLayerStyles.before)
+      glCompareLayers.after.setStyle(glCompareLayerStyles.after)
     }
     // check for changed time/experience filter
     if (nextProps.stats.timeFilter !== this.props.stats.timeFilter) {
@@ -150,19 +158,16 @@ class Map extends Component {
     }
     // check for switched map views (country/compare)
     if (nextProps.map.view !== this.props.map.view) {
-      if (this.props.map.view === 'compare'
+      if (!(this.props.map.view === 'country' || this.props.map.view === 'default')
         && (nextProps.map.view === 'country' || nextProps.map.view === 'default')) {
         glCompareLayers.before.removeFrom(map)
         glCompareLayers.after.removeFrom(map)
         glLayer.addTo(map)
-        glLayer._update()
       }
       if (nextProps.map.view === 'compare') {
         glLayer.removeFrom(map)
         glCompareLayers.before.addTo(map)
         glCompareLayers.after.addTo(map)
-        glCompareLayers.before._update()
-        glCompareLayers.after._update()
         this.swiperMoved(window.innerWidth/2)
       }
     }

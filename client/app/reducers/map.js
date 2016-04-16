@@ -2,13 +2,17 @@ import { handleActions } from 'redux-actions'
 import { createHashHistory } from 'history'
 import polyline from 'polyline'
 
-import { filters as filterOptions, overlays as overlayOptions, compareTimes as timeOptions } from '../settings/options'
+import {
+  filters as filterOptions,
+  overlays as overlayOptions,
+  compareTimes as timeOptions
+} from '../settings/options'
 import defaults from '../settings/defaults'
 
 var history = createHashHistory({ queryKey: false })
 
 const initialState = {
-  view: 'default',
+  view: undefined,//'default',
   times: ['2011', 'now'],
   region: null,
   filters: defaults.filters,
@@ -102,20 +106,20 @@ export default handleActions({
     if (action.payload === undefined) return state
     const timesArray = action.payload.split('...')
     if (!timesArray.every(time =>
-      timeOptions.some(
-        timeOption => timeOption === time
+      timeOptions.some(timeOption =>
+        timeOption.id === time
       )
     )) {
       return state
     }
     return Object.assign({}, state, {
-      times: action.timesArray
+      times: timesArray
     })
   }
 }, initialState)
 
 function updateURL(state) {
-  const view = state.view
+  const view = state.view === 'country' ? 'show' : state.view
   const region = state.region
   const filtersPart = state.filters.length > 0
     ? state.filters.sort().join(',')

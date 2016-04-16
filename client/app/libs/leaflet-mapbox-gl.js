@@ -83,7 +83,15 @@ L.MapboxGL = L.Layer.extend({
 
     addTo: function (map) {
         map.addLayer(this);
+        this._update();
         return this;
+    },
+
+    setStyle: function(style) {
+        this.options.style = style;
+        if (this._glMap) {
+            this._glMap.setStyle(style);
+        }
     },
 
     _initContainer: function () {

@@ -21,10 +21,11 @@ export const overlays = [
 ]
 
 export const compareTimes = [
-  '2008',
-  '2009',
-  '2010',
-  '2011',
-  '2012',
-  'now'
+  { id: '2007', timestamp: new Date('2007-01-01') },
+  { id: '2008', timestamp: new Date('2008-01-01') },
+  { id: '2009', timestamp: new Date('2009-01-01') },
+  { id: '2010', timestamp: new Date('2010-01-01') },
+  { id: '2011', timestamp: new Date('2011-01-01') },
+  { id: '2012', timestamp: new Date('2012-01-01') },
+  { id: 'now',  timestamp: new Date() }
 ]
