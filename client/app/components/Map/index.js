@@ -28,7 +28,7 @@ class Map extends Component {
       <div className={view+'View'}>
         <div id="map">
         </div>
-        {this.props.view === 'compare'
+        {this.props.map.view === 'compare'
           ? <Swiper onMoved={::this.swiperMoved}/>
           : ''
         }
@@ -96,10 +96,10 @@ class Map extends Component {
       })
     }
 
-    if (this.props.view === 'country' || this.props.view === 'default') {
+    if (this.props.map.view === 'country' || this.props.map.view === 'default') {
       glLayer.addTo(map)
     }
-    if (this.props.view === 'compare') {
+    if (this.props.map.view === 'compare') {
       glCompareLayers.before.addTo(map)
       glCompareLayers.after.addTo(map)
       this.swiperMoved(window.innerWidth/2)
@@ -128,6 +128,12 @@ class Map extends Component {
     if (nextProps.overlay !== this.props.overlay) {
       this.props.actions.setOverlayFromUrl(nextProps.overlay)
     }
+    if (nextProps.overlay !== this.props.overlay) {
+      this.props.actions.setOverlayFromUrl(nextProps.overlay)
+    }
+    if (nextProps.view !== this.props.view) {
+      this.props.actions.setViewFromUrl(nextProps.view)
+    }
     // check for changed map parameters
     if (nextProps.map.region !== this.props.map.region) {
       this.mapSetRegion(nextProps.map.region)
@@ -143,15 +149,15 @@ class Map extends Component {
       this.setExperienceFilter(nextProps.stats.experienceFilter)
     }
     // check for switched map views (country/compare)
-    if (nextProps.view !== this.props.view) {
-      if (this.props.view === 'compare'
-        && (nextProps.view === 'country' || nextProps.view === 'default')) {
+    if (nextProps.map.view !== this.props.map.view) {
+      if (this.props.map.view === 'compare'
+        && (nextProps.map.view === 'country' || nextProps.map.view === 'default')) {
         glCompareLayers.before.removeFrom(map)
         glCompareLayers.after.removeFrom(map)
         glLayer.addTo(map)
         glLayer._update()
       }
-      if (nextProps.view === 'compare') {
+      if (nextProps.map.view === 'compare') {
         glLayer.removeFrom(map)
         glCompareLayers.before.addTo(map)
         glCompareLayers.after.addTo(map)

@@ -19,3 +19,12 @@ export const overlays = [
     description: 'Editor Level of Experience'
   },
 ]
+
+export const compareTimes = [
+  '2008',
+  '2009',
+  '2010',
+  '2011',
+  '2012',
+  'now'
+]

@@ -2,12 +2,14 @@ import { handleActions } from 'redux-actions'
 import { createHashHistory } from 'history'
 import polyline from 'polyline'
 
-import { filters as filterOptions, overlays as overlayOptions } from '../settings/options'
+import { filters as filterOptions, overlays as overlayOptions, compareTimes as timeOptions } from '../settings/options'
 import defaults from '../settings/defaults'
 
 var history = createHashHistory({ queryKey: false })
 
 const initialState = {
+  view: 'default',
+  times: ['2011', 'now'],
   region: null,
   filters: defaults.filters,
   overlay: defaults.overlay
@@ -15,30 +17,26 @@ const initialState = {
 
 export default handleActions({
   'set region' (state, action) {
-    var newState = {
-      region: action.payload,
-      filters: state.filters,
-      overlay: state.overlay
-    }
+    var newState = Object.assign({}, state, {
+      view: state.view === 'default' ? 'show' : state.view,
+      region: action.payload
+    })
     updateURL(newState)
     return newState
   },
   'set region from url' (state, action) {
-    return {
-      region: parseRegionFromUrl(action.payload),
-      filters: state.filters,
-      overlay: state.overlay
-    }
+    return Object.assign({}, state, {
+      view: state.view === 'default' ? 'show' : state.view,
+      region: parseRegionFromUrl(action.payload)
+    })
   },
 
   'enable filter' (state, action) {
     var newState
     if (state.filters.indexOf(action.payload) === -1) {
-      newState = {
-        region: state.region,
-        filters: state.filters.concat(action.payload),
-        overlay: state.overlay
-      }
+      newState = Object.assign({}, state, {
+        filters: state.filters.concat(action.payload)
+      })
     } else {
       newState = state
     }
@@ -46,83 +44,112 @@ export default handleActions({
     return newState
   },
   'disable filter' (state, action) {
-    var newState = {
-      region: state.region,
-      filters: state.filters.filter(filter => filter !== action.payload),
-      overlay: state.overlay
-    }
+    var newState = Object.assign({}, state, {
+      filters: state.filters.filter(filter => filter !== action.payload)
+    })
     updateURL(newState)
     return newState
   },
   'set filters from url' (state, action) {
     if (action.payload === undefined) return state
-    return {
-      region: state.region,
+    return Object.assign({}, state, {
       filters: action.payload !== 'none'
         ? action.payload.split(',').filter(filter =>
             filterOptions.some(filterOption =>
               filterOption.id === filter
             )
           )
-        : [],
-      overlay: state.overlay
-    }
+        : []
+    })
   },
 
   'set overlay' (state, action) {
-    var newState = {
-      region: state.region,
-      filters: state.filters,
+    var newState = Object.assign({}, state, {
       overlay: action.payload
-    }
+    })
     updateURL(newState)
     return newState
   },
   'set overlay from url' (state, action) {
     if (action.payload === undefined) return state
     if (!overlayOptions.some(overlayOption => overlayOption.id === action.payload)) return state
-    return {
-      region: state.region,
-      filters: state.filters,
+    return Object.assign({}, state, {
       overlay: action.payload
+    })
+  },
+
+  'set view' (state, action) {
+    var newState = Object.assign({}, state, {
+      view: action.payload
+    })
+    updateURL(newState)
+    return newState
+  },
+  'set view from url' (state, action) {
+    return Object.assign({}, state, {
+      view: action.payload
+    })
+  },
+
+  'set times' (state, action) {
+    var newState = Object.assign({}, state, {
+      times: action.payload.split()
+    })
+    updateURL(newState)
+    return newState
+  },
+  'set times from url' (state, action) {
+    if (action.payload === undefined) return state
+    const timesArray = action.payload.split('...')
+    if (!timesArray.every(time =>
+      timeOptions.some(
+        timeOption => timeOption === time
+      )
+    )) {
+      return state
     }
+    return Object.assign({}, state, {
+      times: action.timesArray
+    })
   }
 }, initialState)
 
 function updateURL(state) {
-  var region = state.region
-  var filterPart = state.filters.length > 0
+  const view = state.view
+  const region = state.region
+  const filtersPart = state.filters.length > 0
     ? state.filters.sort().join(',')
     : 'none'
-  var overlayPart = state.overlay
+  const overlayPart = state.overlay
+  const timesPart = state.times.join('...')
+  const options = state.view === 'compare'
+    ? timesPart + '/' + filtersPart
+    : filtersPart + '/' + overlayPart
   if (region !== null) {
     switch (region.type) {
     case 'bbox':
-      history.replace('/show'
+      history.replace('/'+view
         +'/bbox:'
         +region.coords.map(x => x.toFixed(5)).join(',')
-        +'/'+filterPart
-        +'/'+overlayPart
+        +'/'+options
       )
     break
     case 'polygon':
-      history.replace('/show'
+      history.replace('/'+view
         +'/polygon:'
         +encodeURIComponent(
           polyline.encode(
             region.coords
           )
         )
-        +'/'+filterPart
-        +'/'+overlayPart
+        +'/'+options
       )
     break
     case 'hot':
-      history.replace('/show'
+      history.replace('/'+view
         +'/hot:'
         +region.id
-        +'/'+filterPart
-        +'/'+overlayPart
+        +'/'+options
       )
     break
     default:
