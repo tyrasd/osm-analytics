@@ -97,7 +97,7 @@ export default handleActions({
 
   'set times' (state, action) {
     var newState = Object.assign({}, state, {
-      times: action.payload.split()
+      times: action.payload
     })
     updateURL(newState)
     return newState
