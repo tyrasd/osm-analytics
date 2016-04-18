@@ -9,8 +9,7 @@ div#compare {
   background: rgba(#344762, 0.8);
   background: linear-gradient(to bottom, rgba(#344762,0.8) 0%,rgba(#262323,0.8) 100%);
 
-
-  ul {
+  ul.metrics {
     list-style-type: none;
     display: inline-block;
     margin: 0;
@@ -21,9 +20,28 @@ div#compare {
       display: inline-block;
       margin-right: 12px;
       line-height: 16px;
-      button.selected {
-        border: 2px solid white;
-      }
+    }
+    &.after {
+      position: absolute;
+      right: 250px;
+    }
+    &.before li:first-child {
+      margin-right: 24px;
+      border-right: 1px solid #979797;
+      padding-right: 18px;
+      height: 36px;
+      vertical-align: top;
+    }
+    &.after li:last-child {
+      margin-left: 12px;
+      border-left: 1px solid #979797;
+      padding-left: 18px;
+      height: 36px;
+      vertical-align: top;
+    }
+    p {
+      margin: 0;
+      color: white;
     }
   }
 }

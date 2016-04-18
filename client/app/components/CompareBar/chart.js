@@ -167,7 +167,7 @@ class Timegraph extends Component {
           },
           "update": {
             "x": {"scale": "x", "signal": "before_drag"},
-            "width": {"value": 2},
+            "width": {"value": 3},
             "y": {"value": 30-8},
             "height": {"value": 70+2*8}
           }
@@ -186,7 +186,7 @@ class Timegraph extends Component {
           },
           "update": {
             "x": {"scale": "x", "signal": "after_drag"},
-            "width": {"value": 2},
+            "width": {"value": 3},
             "y": {"value": 30-8},
             "height": {"value": 70+2*8}
           }
