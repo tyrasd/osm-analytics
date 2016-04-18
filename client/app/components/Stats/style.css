@@ -47,6 +47,10 @@ div#stats {
 
   div.chart {
     cursor: crosshair;
+    g.start_marker,
+    g.end_marker {
+      cursor: ew-resize;
+    }
   }
 }
 

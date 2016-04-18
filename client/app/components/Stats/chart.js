@@ -11,6 +11,7 @@ class Histogram extends Component {
   }
 
   _brushStart = null
+  _brushEnd = null
 
   componentDidMount() {
     const { mode } = this.props
@@ -27,7 +28,8 @@ class Histogram extends Component {
         renderer: 'svg'
       })
 
-      vis.onSignal('brush_start', debounce(::this.setFilter, 10))
+      vis.onSignal('brush_start', debounce(::this.setFilter, 50))
+      vis.onSignal('brush_start_drag', debounce(::this.setFilter, 200))
       vis.onSignal('brush_end', debounce(::this.setFilter, 200))
 
       vis.data('activity').insert([]) // actual data comes later ^^
@@ -49,24 +51,27 @@ class Histogram extends Component {
     if (signal === 'brush_start') {
       this._brushStart = value
     } else {
+      if (signal === 'brush_end') {
+        this._brushEnd = value
+      }
       if (mode === 'recency') {
-        if (this._brushStart - value === 0) {
+        if (this._brushStart - this._brushEnd === 0) {
           // startTime === endTime -> reset time filter
           actions.setTimeFilter(null)
         } else {
           actions.setTimeFilter([
-            Math.min(this._brushStart, value)/1000,
-            Math.max(this._brushStart, value)/1000
+            Math.min(this._brushStart, this._brushEnd)/1000,
+            Math.max(this._brushStart, this._brushEnd)/1000
           ])
         }
       } else {
-        if (this._brushStart - value === 0) {
+        if (this._brushStart - this._brushEnd === 0) {
           // startTime === endTime -> reset time filter
           actions.setExperienceFilter(null)
         } else {
           actions.setExperienceFilter([
-            Math.pow(2, /*Math.floor*/(Math.min(this._brushStart, value))),
-            Math.pow(2, /*Math.ceil */(Math.max(this._brushStart, value)))
+            Math.pow(2, /*Math.floor*/(Math.min(this._brushStart, this._brushEnd))),
+            Math.pow(2, /*Math.ceil */(Math.max(this._brushStart, this._brushEnd)))
           ])
         }
       }
@@ -157,19 +162,45 @@ class Histogram extends Component {
 
       "signals": [
         {
+          "name": "brush_start_drag",
+          "init": -1,
+          "streams": [{
+            "type": "@start_marker:mousedown, [@start_marker:mousedown, window:mouseup] > window:mousemove",
+            "expr": "iscale('x', clamp(eventX(), 0, width))"
+          }, {
+            "type": "@start_marker:mouseout", "expr": "-1"
+          }]
+        },
+        {
+          "name": "brush_end_drag",
+          "init": -1,
+          "streams": [{
+            "type": "@end_marker:mousedown, [@end_marker:mousedown, window:mouseup] > window:mousemove",
+            "expr": "iscale('x', clamp(eventX(), 0, width))"
+          }, {
+            "type": "@end_marker:mouseout", "expr": "-1"
+          }]
+        },
+        {
           "name": "brush_start",
           "init": {},
           "streams": [{
-            "type": "mousedown",
+            "type": "mousedown[brush_start_drag<0 && brush_end_drag<0]",
             "expr": "iscale('x', clamp(eventX(), 0, width))"
+          }, {
+            "type": "brush_start_drag",
+            "expr": "brush_start_drag >=0 ? brush_start_drag : brush_start"
           }]
         },
         {
           "name": "brush_end",
           "init": {},
           "streams": [{
-            "type": "mousedown, [mousedown, window:mouseup] > window:mousemove",
+            "type": "mousedown[brush_start_drag<0 && brush_end_drag<0], [mousedown[brush_start_drag<0 && brush_end_drag<0], window:mouseup] > window:mousemove",
             "expr": "iscale('x', clamp(eventX(), 0, width))"
+          }, {
+            "type": "brush_end_drag",
+            "expr": "brush_end_drag >=0 ? brush_end_drag : brush_end"
           }]
         },
 
@@ -415,16 +446,25 @@ class Histogram extends Component {
             },
             {
               "type": "rect",
+              "name": "start_marker",
               "properties": {
                 "enter": {
                   "fill": {"value": "#BCE3E9"},
-                  "fillOpacity": {"value": 1}
+                  "fillOpacity": {"value": 1},
+                  "stroke": {"value": "#000"},
+                  "strokeOpacity": {"value": 0.0}
                 },
                 "update": {
                   "x": {"scale": "x", "signal": "brush_start"},
                   "width": [
                     { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
                       "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "strokeWidth": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
+                      "value": 15
                     },
                     {"value": 0}
                   ],
@@ -435,16 +475,25 @@ class Histogram extends Component {
             },
             {
               "type": "rect",
+              "name": "end_marker",
               "properties": {
                 "enter": {
                   "fill": {"value": "#BCE3E9"},
-                  "fillOpacity": {"value": 1}
+                  "fillOpacity": {"value": 1},
+                  "stroke": {"value": "#000"},
+                  "strokeOpacity": {"value": 0.0}
                 },
                 "update": {
                   "x": {"scale": "x", "signal": "brush_end"},
                   "width": [
                     { "test": "brush_start>brush_end || brush_start<brush_end",
                       "value": 2
+                    },
+                    {"value": 0}
+                  ],
+                  "strokeWidth": [
+                    { "test": "brush_start>brush_end || brush_start<brush_end", // == doesn't seem to work for whatever reason… wtf?
+                      "value": 15
                     },
                     {"value": 0}
                   ],
