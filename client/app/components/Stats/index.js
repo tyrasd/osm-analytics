@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import Modal from 'react-modal';
+import Modal from 'react-modal'
 import { polygon } from 'turf'
 import { queue } from 'd3-queue'
 import moment from 'moment'
@@ -11,7 +11,7 @@ import OverlayButton from '../OverlayButton'
 import Histogram from './chart'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
-import searchFeatures, { getRegionZoom } from './searchFeatures'
+import searchFeatures from './searchFeatures'
 import { filters } from '../../settings/options'
 import style from './style.css'
 
@@ -152,7 +152,6 @@ class Stats extends Component {
       || nextProps.map.filters !== this.props.map.filters) {
       ::this.update(nextProps.map.region, nextProps.map.filters)
     }
-    // todo: reset time/experience filter when changing mode from recency to experience or vv
   }
 
   update(region, filters) {
@@ -163,6 +162,7 @@ class Stats extends Component {
       q.defer(searchFeatures, region, filter)
     )
     q.awaitAll(function(err, data) {
+      if (err) throw err
       this.setState({
         features: data.map((d,index) => ({
           filter: filters[index],

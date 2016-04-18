@@ -4,16 +4,15 @@ import Protobuf from 'pbf'
 import { extent, intersect, bboxPolygon, featurecollection, centroid, lineDistance, within } from 'turf'
 import Sphericalmercator from 'sphericalmercator'
 import { queue } from 'd3-queue'
-import { filters } from '../../settings/options'
 
 var merc = new Sphericalmercator({size: 512})
 
 var cache = {} // todo: cache invalidation
-filters.forEach(filter => cache[filter.id] = {})
 
 function fetch(region, filter, callback) {
   const zoom = getRegionZoom(region)
   const tiles = getRegionTiles(region, zoom)
+  if (!cache[filter]) cache[filter] = {}
   const toLoad = tiles.filter(tile => cache[filter][tile.hash] === undefined)
   var q = queue(4) // max 4 concurrently loading tiles in queue
   toLoad.forEach(tile => q.defer(getAndCacheTile, tile, filter))
