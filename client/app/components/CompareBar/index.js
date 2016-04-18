@@ -12,7 +12,7 @@ import style from './style.css'
 
 class CompareBar extends Component {
   state = {
-    featureCounts: [],
+    featureCounts: {},
     updating: false
   }
 
@@ -20,23 +20,10 @@ class CompareBar extends Component {
 
     return (
       <div id="compare">
-        <ul>
-        {timeOptions.map(timeOption =>
-          <li key={timeOption.id}>
-            <button
-              onClick={this.setCompareTime.bind(this,timeOption.id)}
-              className={this.props.map.times.indexOf(timeOption.id) !== -1 ? 'selected' : ''}>
-              {timeOption.id}
-            </button>
-          </li>
-        )}
-        </ul>
+        <h3>{this.props.map.times.join(' – ')}</h3>
         <button className="compare-toggle" onClick={::this.disableCompareView}>Close Comparison View</button>
 
-
-        <Chart filters={this.props.map.filters} data={this.state.featureCounts}/>
-
-
+        <Chart before={this.props.map.times[0]} after={this.props.map.times[1]} data={this.state.featureCounts}/>
       </div>
     )
   }
@@ -68,6 +55,7 @@ class CompareBar extends Component {
             if (err) callback(err)
             else {
               featureCounts[filter][timeIdx] = {
+                id: timeOption.id,
                 day: +timeOption.timestamp,
                 value: Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._count || 1), 0))
               }
@@ -84,17 +72,6 @@ class CompareBar extends Component {
         updating: false
       })
     }.bind(this))
-  }
-
-  setCompareTime(time) {
-    var clickedIndex = timeOptions.find(timeOption => timeOption.id === time).id
-    var times = this.props.map.times.slice().sort()
-    var beforeIndex = timeOptions.find(timeOption => timeOption.id === times[0]).id
-    var afterIndex = timeOptions.find(timeOption => timeOption.id === times[1]).id
-    if (clickedIndex < beforeIndex) times[0] = time
-    else if (clickedIndex > afterIndex) times[1] = time
-    else if (clickedIndex - beforeIndex <= afterIndex - clickedIndex) times[0] = time; else times[1] = time
-    this.props.actions.setTimes(times)
   }
 
   disableCompareView() {
