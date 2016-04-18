@@ -4,6 +4,8 @@ set -e # halt script on error
 set -x
 
 npm run build
+cp app/CNAME static/CNAME
+
 cd static/
 git init
 git add .
