@@ -24,11 +24,11 @@ class CompareBar extends Component {
         <li>
           <p>{this.props.map.times[0]}</p>
         </li>
-        {this.props.map.filters.map(filter => {
+        {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
           return (<li key={filter}>
             <span className="number">{
               numberWithCommas(Number(
-                this.state.featureCounts[filter] && this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[0]).value
+                this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[0]).value
               ).toFixed(0))
             }</span><br/>
             <span className="descriptor">{
@@ -39,11 +39,11 @@ class CompareBar extends Component {
         })}
         </ul>
         <ul className="metrics after">
-        {this.props.map.filters.map(filter => {
+        {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
           return (<li key={filter}>
             <span className="number">{
               numberWithCommas(Number(
-                this.state.featureCounts[filter] && this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[1]).value
+                this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[1]).value
               ).toFixed(0))
             }</span><br/>
             <span className="descriptor">{
@@ -80,7 +80,7 @@ class CompareBar extends Component {
 
   update(region, filters) {
     region = polygon(regionToCoords(region))
-    this.setState({ updating: true })
+    this.setState({ updating: true, featureCounts: {} })
     var q = queue()
     var featureCounts = {}
     filters.forEach(filter => {

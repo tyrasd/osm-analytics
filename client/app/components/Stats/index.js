@@ -121,7 +121,7 @@ class Stats extends Component {
             : this.state.hotProjects.length
             }</span><br/><span className="descriptor">HOT Projects</span>
           </li>
-        {numContribuors === null ? '' : (
+        {!numContribuors ? '' : (
           <li><span className="number">{numberWithCommas(numContribuors)}</span><br/><span className="descriptor">Contributors</span></li>
         )}
         </ul>
@@ -162,7 +162,7 @@ class Stats extends Component {
 
   update(region, filters) {
     region = polygon(regionToCoords(region))
-    this.setState({ updating: true })
+    this.setState({ updating: true, features: [] })
     var q = queue()
     filters.forEach(filter =>
       q.defer(searchFeatures, region, filter)
