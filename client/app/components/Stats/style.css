@@ -98,7 +98,7 @@ ul.hot-projects {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  margin-bottom: -10px;
+  max-height: 290px;
   overflow-y: auto;
   li {
     line-height: 30px;
