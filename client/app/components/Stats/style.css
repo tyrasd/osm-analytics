@@ -47,6 +47,13 @@ div#stats {
 
   div.chart {
     cursor: crosshair;
+    &.shift {
+      cursor: grab;
+    }
+    &.shift-drag {
+      cursor: grab;
+      cursor: grabbing;
+    }
     g.start_marker,
     g.end_marker {
       cursor: ew-resize;

@@ -7,7 +7,8 @@ import * as StatsActions from '../../actions/stats'
 
 class Histogram extends Component {
   state = {
-    vis: null
+    vis: null,
+    shift: false
   }
 
   _brushStart = null
@@ -17,6 +18,22 @@ class Histogram extends Component {
     const { mode } = this.props
 
     this.initGraph(mode)
+
+    document.addEventListener('keydown', ::this._onKey)
+    document.addEventListener('keyup', ::this._onKey)
+    document.addEventListener('mousedown', ::this._onMouse)
+    document.addEventListener('mouseup', ::this._onMouse)
+  }
+
+  _onKey(event) {
+    this.setState({
+      shift: event.shiftKey ? 'shift' : ''
+    })
+  }
+  _onMouse(event) {
+    this.setState({
+      shift: event.shiftKey && event.type === 'mousedown' ? 'shift-drag' : ''
+    })
   }
 
   initGraph(mode) {
@@ -148,7 +165,7 @@ class Histogram extends Component {
 
   render() {
     return (
-      <div ref="chartContainer" className="chart" title="click-drag to select date or experience range"/>
+      <div ref="chartContainer" className={"chart " + (this.state.shift || "")} title="click-drag to select date or experience range"/>
     )
   }
 
@@ -161,6 +178,14 @@ class Histogram extends Component {
       "padding": {"top": 10, "left": 40, "bottom": 30, "right": 5},
 
       "signals": [
+        {
+          "name": "shift",
+          "init": false,
+          "verbose": true,
+          "streams": [
+            {"type": "mousedown", "expr": "event.shiftKey"
+          }]
+        },
         {
           "name": "brush_start_drag",
           "init": -1,
@@ -185,7 +210,7 @@ class Histogram extends Component {
           "name": "brush_start",
           "init": {},
           "streams": [{
-            "type": "mousedown[brush_start_drag<0 && brush_end_drag<0]",
+            "type": "mousedown[!shift && brush_start_drag<0 && brush_end_drag<0]",
             "expr": "iscale('x', clamp(eventX(), 0, width))"
           }, {
             "type": "brush_start_drag",
@@ -196,7 +221,7 @@ class Histogram extends Component {
           "name": "brush_end",
           "init": {},
           "streams": [{
-            "type": "mousedown[brush_start_drag<0 && brush_end_drag<0], [mousedown[brush_start_drag<0 && brush_end_drag<0], window:mouseup] > window:mousemove",
+            "type": "mousedown[!shift && brush_start_drag<0 && brush_end_drag<0], [mousedown[!shift && brush_start_drag<0 && brush_end_drag<0], window:mouseup] > window:mousemove",
             "expr": "iscale('x', clamp(eventX(), 0, width))"
           }, {
             "type": "brush_end_drag",
@@ -204,13 +229,12 @@ class Histogram extends Component {
           }]
         },
 
-        // the commented out part would enable panning, but interferes with the brushing above.
-        // todo: check if this can be done via some modifier key or something...
-        /*{
-          "name": "point",
+        // panning
+        {
+          "name": "delta_start",
           "init": 0,
           "streams": [{
-            "type": "mousedown",
+            "type": "mousedown[shift]",
             "expr": "eventX()"
           }]
         },
@@ -218,10 +242,12 @@ class Histogram extends Component {
           "name": "delta",
           "init": 0,
           "streams": [{
-            "type": "[mousedown, window:mouseup] > window:mousemove",
-            "expr": "point.x - eventX()"
+            "type": "[mousedown[shift], window:mouseup] > window:mousemove",
+            "expr": "delta_start - eventX()"
           }]
-        },*/
+        },
+
+
         {
           "name": "xAnchor",
           "init": 0,
@@ -253,12 +279,17 @@ class Histogram extends Component {
             ? +(new Date("2004-08-09"))
             : 0,
           "streams": [
-            //{"type": "delta", "expr": "+datetime(xs.min + (xs.max-xs.min)*delta/width)"},
+            {
+              "type": "delta",
+              "expr": activityMode
+                ? "max(+datetime(xs.min + (xs.max-xs.min)*delta/width), "+(+(new Date("2004-08-09")))+")"
+                : "xs.min" //"max(xs.min + (xs.max-xs.min)*delta/width, 0)"
+            },
             {
               "type": "zoom",
               "expr": activityMode
                 ? "max(+datetime((xs.min-xAnchor)*zoom + xAnchor), "+(+(new Date("2004-08-09")))+")"
-                : "max((xs.min-xAnchor)*zoom + xAnchor, 0)"
+                : "xs.min" //"max((xs.min-xAnchor)*zoom + xAnchor, 0)"
             }
           ]
         },
@@ -268,12 +299,17 @@ class Histogram extends Component {
             ? +(new Date())
             : 23,
           "streams": [
-            //{"type": "delta", "expr": "+datetime(xs.max + (xs.max-xs.min)*delta.x/width)"},
+            {
+              "type": "delta",
+              "expr": activityMode
+                ? "min(+datetime(+xs.max + (+xs.max-xs.min)*delta/width), "+(+(new Date()))+")"
+                : "xs.max" //"min(xs.max + (xs.max-xs.min)*delta/width, 23)"
+            },
             {
               "type": "zoom",
               "expr": activityMode
                 ? "min(+datetime((xs.max-xAnchor)*zoom + xAnchor), "+(+(new Date()))+")"
-                : "min((xs.max-xAnchor)*zoom + xAnchor, 23)"
+                : "xs.max" //"min((xs.max-xAnchor)*zoom + xAnchor, 23)"
             }
           ]
         },
