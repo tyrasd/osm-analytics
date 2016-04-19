@@ -148,8 +148,6 @@ class SearchBox extends Component {
         this.setState({
           currentValue: hotProjects.find(p => p.id === this.props.selectedRegion.id).name
         })
-      } else {
-        this.setState({ currentValue: '' })
       }
     }
   }
@@ -159,8 +157,6 @@ class SearchBox extends Component {
         this.setState({
           currentValue: hotProjects.find(p => p.id === nextProps.selectedRegion.id).name
         })
-      } else {
-        this.setState({ currentValue: '' })
       }
     }
   }
