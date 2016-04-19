@@ -19,7 +19,7 @@ class CompareBar extends Component {
   render() {
 
     return (
-      <div id="compare">
+      <div id="compare" className={this.state.updating ? 'updating' : ''}>
         <ul className="metrics before">
         <li>
           <p>{this.props.map.times[0]}</p>
