@@ -64,6 +64,9 @@ class Map extends Component {
         zIndex: -1
     }).addTo(map)
 
+    if (!mapboxgl.supported()) {
+      alert('This browser does not support WebGL which is required to run this application. Please check that you are using a supported browser and that WebGL is enabled.')
+    }
     glLayer = L.mapboxGL({
       updateInterval: 0,
       accessToken: mapbox_token,
