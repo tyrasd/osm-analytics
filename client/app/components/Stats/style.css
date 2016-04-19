@@ -85,3 +85,14 @@ ul.hot-projects {
   left: 21px;
   right: auto;
 }
+
+div.ReactModalPortal {
+  a.close-link {
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 30px;
+    color: #BEC9D5;
+  }
+}

@@ -132,6 +132,7 @@ class Stats extends Component {
           onRequestClose={::this.closeHotModal}
           style={hotProjectsModalStyles}>
           <h3>HOT Projects</h3>
+          <a className="close-link" onClick={::this.closeHotModal}>x</a>
           <ul className="hot-projects">
           {this.state.hotProjects.map(p =>
             <li key={p.id}><a className="link" href={"http://tasks.hotosm.org/project/"+p.id}>{'#'+p.id+' '+p.properties.name}</a></li>
