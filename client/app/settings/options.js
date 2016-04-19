@@ -27,5 +27,9 @@ export const compareTimes = [
   { id: '2010', timestamp: new Date('2010-01-01') },
   { id: '2011', timestamp: new Date('2011-01-01') },
   { id: '2012', timestamp: new Date('2012-01-01') },
+  { id: '2013', timestamp: new Date('2013-01-01') },
+  { id: '2014', timestamp: new Date('2014-01-01') },
+  { id: '2015', timestamp: new Date('2015-01-01') },
+  { id: '2016', timestamp: new Date('2016-01-01') },
   { id: 'now',  timestamp: new Date() }
 ]
