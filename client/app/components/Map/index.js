@@ -227,7 +227,7 @@ class Map extends Component {
         moveDirectly = false
       } else if (
         !xorAreaViewPort // new region fully includes viewport
-        || area(xorAreaViewPort) > area(viewPort)*(1-0.1) // region is small compared to current viewport (<10% of the area covered) or feature is outside current viewport
+        || area(xorAreaViewPort) > area(viewPort)*(1-0.01) // region is small compared to current viewport (<10% of the area covered) or feature is outside current viewport
       ) {
         fitboundsFunc = ::map.flyToBounds
       } else {
