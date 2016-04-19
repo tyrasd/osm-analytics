@@ -115,7 +115,12 @@ class Stats extends Component {
             }</span>
           </li>)
         })}
-          <li><span className="number"><a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a></span><br/><span className="descriptor">HOT Projects</span></li>
+          <li>
+            <span className="number">{this.state.hotProjects.length > 0
+            ? <a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a>
+            : this.state.hotProjects.length
+            }</span><br/><span className="descriptor">HOT Projects</span>
+          </li>
         {numContribuors === null ? '' : (
           <li><span className="number">{numberWithCommas(numContribuors)}</span><br/><span className="descriptor">Contributors</span></li>
         )}
