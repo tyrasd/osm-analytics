@@ -43,7 +43,7 @@ class CompareBar extends Component {
           return (<li key={filter}>
             <span className="number">{
               numberWithCommas(Number(
-                this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[1]).value
+                this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[1]).value
               ).toFixed(0))
             }</span><br/>
             <span className="descriptor">{
@@ -87,6 +87,7 @@ class CompareBar extends Component {
     filters.forEach(filter => {
       featureCounts[filter] = []
       timeOptions.forEach((timeOption, timeIdx) => {
+        if (timeOption.except === filter) return
         q.defer(function(region, filter, time, callback) {
           searchFeatures(region, filter+time.replace('now',''), function(err, data) {
             if (err) callback(err)

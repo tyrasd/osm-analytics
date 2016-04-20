@@ -75,7 +75,7 @@ class Timegraph extends Component {
     if (vis) {
       // update data in case it changed
       filterOptions.forEach(filter => {
-        vis.data(filter.id+'_data').remove(() => true).insert(data[filter.id] || [])
+        vis.data(filter.id+'_data').remove(() => true).insert(data[filter.id] && data[filter.id].filter(x => x) || [])
       })
       // update before/after drag markers
       let beforeTimestamp = +timeOptions.find(timeOption => timeOption.id === before).timestamp
