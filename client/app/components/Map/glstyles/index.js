@@ -58,10 +58,13 @@ export function getCompareStyles(filters, compareTimes) {
   // update urls to fetch historic data
   const beforeStr = (compareTimes[0] === 'now') ? '' : compareTimes[0]
   const afterStr = (compareTimes[1] === 'now') ? '' : compareTimes[1]
-  // todo: roads
   glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+beforeStr+'/')
   glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+beforeStr+'/')
   glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+afterStr+'/')
   glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+afterStr+'/')
+  glCompareLayerStyles.before.sources['osm-highways-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-highways-raw'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+beforeStr+'/')
+  glCompareLayerStyles.before.sources['osm-highways-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-highways-aggregated'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+beforeStr+'/')
+  glCompareLayerStyles.after.sources['osm-highways-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-highways-raw'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+afterStr+'/')
+  glCompareLayerStyles.after.sources['osm-highways-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-highways-aggregated'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+afterStr+'/')
   return glCompareLayerStyles
 }
