@@ -1,6 +1,6 @@
 import { intersect, extent } from 'turf'
 import { polygon as lineclipPoly } from 'lineclip'
-import hotProjects from '../../data/hotprojectsGeometry.json'
+import hotProjects from '../../data/hotprojects.json'
 
 export default function searchHotProjectsInRegion(region) {
   const regionBbox = extent(region)

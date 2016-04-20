@@ -8,6 +8,8 @@ import Autosuggest from 'react-autosuggest'
 import hotProjects from '../../data/hotprojects.json'
 import style from './style.css'
 
+var hotProjectsList = hotProjects.features.map(f => ({ id: f.id, name: f.properties.name }))
+
 function fuse (data) {
   return new Fuse(data, {
     keys: ['name'],
@@ -21,7 +23,7 @@ class SearchBox extends Component {
   state = {
     active: true,
     currentValue: '',
-    fuse: fuse(hotProjects)
+    fuse: fuse(hotProjectsList)
   }
 
   onClick() {
@@ -50,7 +52,7 @@ class SearchBox extends Component {
     suggestions = suggestions.map(s => s.item)
 
     if (input.match(/^\d+$/)) {
-      suggestions = hotProjects.filter(p => p.id === +input).concat(suggestions)
+      suggestions = hotProjectsList.filter(p => p.id === +input).concat(suggestions)
     }
 
     if (callback) {
@@ -146,7 +148,7 @@ class SearchBox extends Component {
     if (this.props.selectedRegion) {
       if (this.props.selectedRegion.type === 'hot') {
         this.setState({
-          currentValue: hotProjects.find(p => p.id === this.props.selectedRegion.id).name
+          currentValue: hotProjectsList.find(p => p.id === this.props.selectedRegion.id).name
         })
       }
     }
@@ -155,7 +157,7 @@ class SearchBox extends Component {
     if (nextProps.selectedRegion) {
       if (nextProps.selectedRegion.type === 'hot') {
         this.setState({
-          currentValue: hotProjects.find(p => p.id === nextProps.selectedRegion.id).name
+          currentValue: hotProjectsList.find(p => p.id === nextProps.selectedRegion.id).name
         })
       }
     }

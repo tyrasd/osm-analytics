@@ -1,5 +1,5 @@
 import { bboxPolygon, polygon, flip } from 'turf'
-import hotProjects from '../../data/hotprojectsGeometry.json'
+import hotProjects from '../../data/hotprojects.json'
 
 export default function regionToCoords(region, latLngOrder) {
   var coords
