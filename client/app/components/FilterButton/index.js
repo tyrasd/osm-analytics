@@ -5,12 +5,12 @@ import { filters } from '../../settings/options'
 
 class FilterButton extends Component {
   render() {
-    var btn = <button className='filter'>Select Map Features</button>
+    var btn = <button className='filter' title='Select Map Features'>{filters.find(filter => filter.id === this.props.enabledFilters[0]).description}&ensp;▾</button>
     return (
       <DropdownButton
         options={filters}
         btnElement={btn}
-        multiple={true}
+        multiple={false}
         selectedKeys={this.props.enabledFilters}
         onSelectionChange={::this.handleDropdownChanges}
       />
