@@ -79,6 +79,7 @@ class CompareBar extends Component {
   }
 
   update(region, filters) {
+    const filter = filters[0]
     region = polygon(regionToCoords(region))
     this.setState({ updating: true, featureCounts: {} })
     var q = queue()
@@ -93,7 +94,9 @@ class CompareBar extends Component {
               featureCounts[filter][timeIdx] = {
                 id: timeOption.id,
                 day: +timeOption.timestamp,
-                value: Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._count || 1), 0))
+                value: filter === 'highways'
+                  ? Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._length || 0.0), 0.0))
+                  : Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._count || 1), 0))
               }
               callback(null)
             }
