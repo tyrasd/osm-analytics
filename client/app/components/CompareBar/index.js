@@ -111,8 +111,8 @@ class CompareBar extends Component {
                 id: timeOption.id,
                 day: +timeOption.timestamp,
                 value: filter === 'highways'
-                  ? Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._length || 0.0), 0.0))
-                  : Math.round(data.features.reduce((prev, feature) => prev + (feature.properties._count || 1), 0))
+                  ? data.features.reduce((prev, feature) => prev + (feature.properties._length || 0.0), 0.0)
+                  : data.features.reduce((prev, feature) => prev + (feature.properties._count || 1), 0)
               }
               callback(null)
             }
