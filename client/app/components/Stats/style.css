@@ -9,27 +9,6 @@ div#stats {
   background: rgba(#344762, 0.8);
   background: linear-gradient(to bottom, rgba(#344762,0.8) 0%,rgba(#262323,0.8) 100%);
 
-  &.updating {
-    & > * {
-      opacity: 0.5;
-    }
-    &:after {
-      content: " ";
-      display: block;
-      width: 25px;
-      height: 25px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-top: -12px;
-      margin-left: -12px;
-      border: 2px solid #fff;
-      border-top-color: transparent;
-      border-radius: 100%;
-      animation: circle infinite .75s linear;
-    }
-  }
-
   ul.metrics {
     list-style-type: none;
     display: inline-block;
@@ -106,6 +85,24 @@ ul.hot-projects {
   }
 }
 
+ul.contributors {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 290px;
+  overflow-y: auto;
+  position: relative;
+  li {
+    span.percentage {
+      position: absolute;
+      right: 0;
+    }
+    button {
+      margin-top: 20px;
+    }
+  }
+}
+
 .overlays-dropdown > .rc-dropdown-menu:before {
   left: 21px;
   right: auto;
@@ -119,6 +116,11 @@ div.ReactModalPortal {
     right: 30px;
     font-size: 30px;
     color: #BEC9D5;
+  }
+
+  .updating:after {
+    border-color: #888888;
+    border-top-color: transparent;
   }
 }
 

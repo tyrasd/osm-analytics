@@ -9,6 +9,7 @@ import * as MapActions from '../../actions/map'
 import * as StatsActions from '../../actions/stats'
 import OverlayButton from '../OverlayButton'
 import Histogram from './chart'
+import ContributorsModal from './contributorsModal'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures from './searchFeatures'
@@ -16,7 +17,7 @@ import { filters } from '../../settings/options'
 import style from './style.css'
 
 
-const hotProjectsModalStyles = {
+const modalStyles = {
   overlay: {
     backgroundColor: 'rgba(60,60,60, 0.5)'
   },
@@ -29,6 +30,7 @@ const hotProjectsModalStyles = {
     transform: 'translate(-50%, -50%)',
     maxHeight: '350px',
     maxWidth: '512px',
+    minWidth: '256px',
     borderRadius: '4px',
     paddingTop: '25px',
     paddingBottom: '35px',
@@ -75,15 +77,20 @@ class Stats extends Component {
     })
 
     // calculate number of contributors
-    var _contributors = {}
+    var contributors = {}
     features.forEach(filter => {
       filter.highlightedFeatures.forEach(f => {
-        _contributors[f.properties._uid] = true
+        contributors[f.properties._uid] = (contributors[f.properties._uid] || 0) + 1
       })
     })
-    var numContribuors = Object.keys(_contributors).length
-    if (numContribuors === 1 && Object.keys(_contributors)[0] === "undefined") {
-      numContribuors = null
+    contributors = Object.keys(contributors).map(uid => ({
+      uid: uid,
+      contributions: contributors[uid]
+    })).sort((a,b) => b.contributions - a.contributions)
+    var numContributors = contributors.length
+    if (numContributors === 1 && contributors[0].uid === "undefined") {
+      // on the low zoom levels we don't have complete data, and estimating this number from a sample is tricky. maybe Good-Turing estimation could be used here? see https://en.wikipedia.org/wiki/Good%E2%80%93Turing_frequency_estimation
+      numContributors = null
     }
 
     var timeFilter = ''
@@ -117,20 +124,23 @@ class Stats extends Component {
         })}
           <li>
             <span className="number">{this.state.hotProjects.length > 0
-            ? <a className="link" onClick={::this.openHotModal}>{this.state.hotProjects.length}</a>
+            ? <a className="link" onClick={::this.openHotModal} target="_blank">{this.state.hotProjects.length}</a>
             : this.state.hotProjects.length
             }</span><br/><span className="descriptor">HOT Projects</span>
           </li>
-        {!numContribuors ? '' : (
-          <li><span className="number">{numberWithCommas(numContribuors)}</span><br/><span className="descriptor">Contributors</span></li>
-        )}
+          <li>
+            <span className="number">{!numContributors
+            ? numContributors === 0 ? '0' : <span title='select a smaller region (~city level) to see the exact number of contributors and get a list of the top contributors in that region'>many</span>
+            : <a className="link" onClick={::this.openContributorsModal} target="_blank">{numberWithCommas(numContributors)}</a>
+            }</span><br/><span className="descriptor">Contributors</span>
+          </li>
         </ul>
         <button className="compare-toggle" onClick={::this.enableCompareView}>Compare Time Periods</button>
 
         <Modal
           isOpen={this.state.hotProjectsModalOpen}
           onRequestClose={::this.closeHotModal}
-          style={hotProjectsModalStyles}>
+          style={modalStyles}>
           <h3>HOT Projects</h3>
           <a className="close-link" onClick={::this.closeHotModal}>x</a>
           <ul className="hot-projects">
@@ -139,6 +149,13 @@ class Stats extends Component {
           )}
           </ul>
         </Modal>
+        <ContributorsModal
+          isOpen={this.state.contributorsModalOpen}
+          onRequestClose={::this.closeContributorsModal}
+          style={modalStyles}
+          contributors={contributors}
+        />
+
         <Histogram key={this.props.mode} mode={this.props.mode} data={
           features.reduce((prev, filter) => prev.concat(filter.features), [])
         }/>
@@ -185,9 +202,14 @@ class Stats extends Component {
   openHotModal() {
     this.setState({ hotProjectsModalOpen: true })
   }
-
   closeHotModal() {
     this.setState({ hotProjectsModalOpen: false })
+  }
+  openContributorsModal() {
+    this.setState({ contributorsModalOpen: true })
+  }
+  closeContributorsModal() {
+    this.setState({ contributorsModalOpen: false })
   }
 
   enableCompareView() {
