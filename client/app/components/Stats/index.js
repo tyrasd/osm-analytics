@@ -8,12 +8,14 @@ import moment from 'moment'
 import * as MapActions from '../../actions/map'
 import * as StatsActions from '../../actions/stats'
 import OverlayButton from '../OverlayButton'
+import UnitSelector from '../UnitSelector'
 import Histogram from './chart'
 import ContributorsModal from './contributorsModal'
 import regionToCoords from '../Map/regionToCoords'
 import searchHotProjectsInRegion from './searchHotProjects'
 import searchFeatures from './searchFeatures'
 import { filters } from '../../settings/options'
+import unitSystems from '../../settings/unitSystems'
 import style from './style.css'
 
 
@@ -112,14 +114,21 @@ class Stats extends Component {
           return (<li key={filter.filter}>
             <span className="number">{
               numberWithCommas(Number((filter.filter === 'highways'
-                ? filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)
+                ? unitSystems[this.props.stats.unitSystem].distance.convert(
+                  filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._length || 0.0), 0.0)
+                )
                 : filter.highlightedFeatures.reduce((prev, feature) => prev+(feature.properties._count || 1), 0))
               ).toFixed(0))
             }</span><br/>
-            <span className="descriptor">{
-              (filter.filter === 'highways' ? 'km of ' : '')
-              + filters.find(f => f.id === filter.filter).description
-            }</span>
+            {filter.filter === 'highways'
+            ? <UnitSelector
+                unitSystem={this.props.stats.unitSystem}
+                unit='distance'
+                suffix={' of '+filters.find(f => f.id === filter.filter).description}
+                setUnitSystem={this.props.statsActions.setUnitSystem}
+              />
+            : <span className="descriptor">{filters.find(f => f.id === filter.filter).description}</span>
+            }
           </li>)
         })}
           <li>

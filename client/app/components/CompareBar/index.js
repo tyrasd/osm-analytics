@@ -4,9 +4,12 @@ import { connect } from 'react-redux'
 import { queue } from 'd3-queue'
 import { polygon } from 'turf'
 import * as MapActions from '../../actions/map'
+import * as StatsActions from '../../actions/stats'
 import { compareTimes as timeOptions, filters as filterOptions } from '../../settings/options'
+import unitSystems from '../../settings/unitSystems'
 import regionToCoords from '../Map/regionToCoords'
 import searchFeatures from '../Stats/searchFeatures'
+import UnitSelector from '../UnitSelector'
 import Chart from './chart'
 import style from './style.css'
 
@@ -28,13 +31,19 @@ class CompareBar extends Component {
           return (<li key={filter}>
             <span className="number">{
               numberWithCommas(Number(
-                this.state.featureCounts[filter].find(counts => counts.id === this.props.map.times[0]).value
-              ).toFixed(0))
+                (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(
+                  this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[0]).value
+              )).toFixed(0))
             }</span><br/>
-            <span className="descriptor">{
-              (filter === 'highways' ? 'km of ' : '')
-              + filterOptions.find(f => f.id === filter).description
-            }</span>
+            {filter === 'highways'
+            ? <UnitSelector
+                unitSystem={this.props.stats.unitSystem}
+                unit='distance'
+                suffix={' of '+filterOptions.find(f => f.id === filter).description}
+                setUnitSystem={this.props.statsActions.setUnitSystem}
+              />
+            : <span className="descriptor">{filterOptions.find(f => f.id === filter).description}</span>
+            }
           </li>)
         })}
         </ul>
@@ -43,13 +52,19 @@ class CompareBar extends Component {
           return (<li key={filter}>
             <span className="number">{
               numberWithCommas(Number(
-                this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[1]).value
-              ).toFixed(0))
+                (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(
+                  this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[1]).value
+              )).toFixed(0))
             }</span><br/>
-            <span className="descriptor">{
-              (filter === 'highways' ? 'km of ' : '')
-              + filterOptions.find(f => f.id === filter).description
-            }</span>
+            {filter === 'highways'
+            ? <UnitSelector
+                unitSystem={this.props.stats.unitSystem}
+                unit='distance'
+                suffix={' of '+filterOptions.find(f => f.id === filter).description}
+                setUnitSystem={this.props.statsActions.setUnitSystem}
+              />
+            : <span className="descriptor">{filterOptions.find(f => f.id === filter).description}</span>
+            }
           </li>)
         })}
         <li>
@@ -132,7 +147,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(MapActions, dispatch)
+    actions: bindActionCreators(MapActions, dispatch),
+    statsActions: bindActionCreators(StatsActions, dispatch)
   }
 }
 
