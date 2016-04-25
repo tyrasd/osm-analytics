@@ -3,7 +3,8 @@ import style from './style.css'
 import glStyles, { getCompareStyles } from './glstyles'
 import Swiper from './swiper'
 import FilterButton from '../FilterButton'
-import SearchBox from '../SearchBox/index.js'
+import SearchBox from '../SearchBox'
+import Legend from '../Legend'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as MapActions from '../../actions/map'
@@ -22,6 +23,8 @@ var boundsLayer = null // selected region layer
 var moveDirectly = false
 
 class Map extends Component {
+  state = {}
+
   render() {
     const { map, view, actions } = this.props
     return (
@@ -36,6 +39,8 @@ class Map extends Component {
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
         <FilterButton enabledFilters={map.filters} {...actions}/>
+
+        <Legend featureType={this.props.map.filters[0]} zoom={this.state.mapZoomLevel} />
       </div>
     )
   }
@@ -54,6 +59,7 @@ class Map extends Component {
     .setView([0, 35], 2)
     map.zoomControl.setPosition('bottomright')
     map.on('editable:editing', debounce(::this.setCustomRegion, 200))
+    map.on('zoomend', (e) => { this.setState({ mapZoomLevel:map.getZoom() }) })
 
     var mapbox_token = 'pk.eyJ1IjoidHlyIiwiYSI6ImNpbHhyNWlxNDAwZXh3OG01cjdnOHV0MXkifQ.-Bj4ZYdiph9V5J8XpRMWtw';
     //L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -89,15 +95,6 @@ class Map extends Component {
         hash: false
       })
     }
-
-    //if (this.props.map.view === 'country' || this.props.map.view === 'default') {
-    //  glLayer.addTo(map)
-    //}
-    //if (this.props.map.view === 'compare') {
-    //  glCompareLayers.before.addTo(map)
-    //  glCompareLayers.after.addTo(map)
-    //  this.swiperMoved(window.innerWidth/2)
-    //}
 
     if (this.props.view) {
       this.props.actions.setViewFromUrl(this.props.view)
