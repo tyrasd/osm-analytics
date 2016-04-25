@@ -9,19 +9,24 @@ class Legend extends Component {
 
   render() {
     const featureTypeDescription = featureTypeOptions.find(f => f.id === this.props.featureType).description
-    var legendEntries
+    var legendEntries = []
     if (this.props.zoom > 13) {
-      legendEntries = [
+      legendEntries.push(
         <li><span className={'legend-icon feature '+this.props.featureType}></span>{featureTypeDescription}</li>,
         <li><span className={'legend-icon feature highlight '+this.props.featureType}></span>Highlighted {featureTypeDescription.toLowerCase()}</li>
-      ]
+      )
     } else {
-      legendEntries = [
+      legendEntries.push(
         <li><span className={'legend-icon high '+this.props.featureType}></span>High density of {featureTypeDescription.toLowerCase()}</li>,
         <li><span className={'legend-icon mid '+this.props.featureType}></span>Medium density of {featureTypeDescription.toLowerCase()}</li>,
         <li><span className={'legend-icon low '+this.props.featureType}></span>Low density of {featureTypeDescription.toLowerCase()}</li>,
         <li><span className={'legend-icon highlight '+this.props.featureType}></span>Area with mostly highlighted {featureTypeDescription.toLowerCase()}</li>
-      ]
+      )
+    }
+    if (this.props.hotOverlayEnabled) {
+      legendEntries.push(
+        <li><span className={'legend-icon hot-projects'}></span>HOT project outline</li>
+      )
     }
     return (
       <ul id="legend">

@@ -9,6 +9,7 @@ import * as MapActions from '../../actions/map'
 import * as StatsActions from '../../actions/stats'
 import OverlayButton from '../OverlayButton'
 import UnitSelector from '../UnitSelector'
+import HotOverlaySelector from '../HotOverlaySelector'
 import Histogram from './chart'
 import ContributorsModal from './contributorsModal'
 import regionToCoords from '../Map/regionToCoords'
@@ -135,7 +136,12 @@ class Stats extends Component {
             <span className="number">{this.state.hotProjects.length > 0
             ? <a className="link" onClick={::this.openHotModal} target="_blank">{this.state.hotProjects.length}</a>
             : this.state.hotProjects.length
-            }</span><br/><span className="descriptor">HOT Projects</span>
+            }</span><br/>
+            <HotOverlaySelector
+              hotOverlayEnabled={this.props.map.hotOverlay}
+              enableHotOverlay={this.props.actions.enableHotOverlay}
+              disableHotOverlay={this.props.actions.disableHotOverlay}
+            />
           </li>
           <li>
             <span className="number">{!numContributors

@@ -77,6 +77,12 @@
         background-color: #5CBAD8;
         border-color: #5CBAD8;
       }
+
+      &.hot-projects {
+        border-color: #3388FF;
+        border-width: 2px;
+        border-style: solid;
+      }
     }
   }
 }

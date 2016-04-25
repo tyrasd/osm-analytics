@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import style from './style.css'
 import glStyles, { getCompareStyles } from './glstyles'
 import Swiper from './swiper'
+import HotOverlay from './hotOverlay'
 import FilterButton from '../FilterButton'
 import SearchBox from '../SearchBox'
 import Legend from '../Legend'
@@ -26,21 +27,26 @@ class Map extends Component {
   state = {}
 
   render() {
-    const { map, view, actions } = this.props
+    const { view, actions } = this.props
     return (
       <div className={view+'View'}>
         <div id="map">
         </div>
+        <HotOverlay enabled={this.props.map.hotOverlay} leaflet={map} />
         {this.props.map.view === 'compare'
           ? <Swiper onMoved={::this.swiperMoved}/>
           : ''
         }
-        <SearchBox className="searchbox" selectedRegion={map.region} {...actions}/>
+        <SearchBox className="searchbox" selectedRegion={this.props.map.region} {...actions}/>
         <span className="search-alternative">or</span>
         <button className="outline" onClick={::this.setViewportRegion}>Outline Custom Area</button>
-        <FilterButton enabledFilters={map.filters} {...actions}/>
+        <FilterButton enabledFilters={this.props.map.filters} {...actions}/>
 
-        <Legend featureType={this.props.map.filters[0]} zoom={this.state.mapZoomLevel} />
+        <Legend
+          featureType={this.props.map.filters[0]}
+          zoom={this.state.mapZoomLevel}
+          hotOverlayEnabled={this.props.map.hotOverlay}
+        />
       </div>
     )
   }
@@ -213,7 +219,9 @@ class Map extends Component {
       [[[-85.0511287798,-1E5],[85.0511287798,-1E5],[85.0511287798,2E5],[-85.0511287798,2E5],[-85.0511287798,-1E5]]]
       .concat(regionToCoords(region, 'leaflet')), {
       weight: 1,
-      color: 'gray'
+      color: 'gray',
+      //className: 'boundsLayer'
+      interactive: false
     }).addTo(map)
     boundsLayer.enableEdit()
 

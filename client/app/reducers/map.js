@@ -16,7 +16,8 @@ const initialState = {
   times: ['2011', 'now'],
   region: null,
   filters: defaults.filters,
-  overlay: defaults.overlay
+  overlay: defaults.overlay,
+  hotOverlay: false
 }
 
 export default handleActions({
@@ -114,6 +115,17 @@ export default handleActions({
     }
     return Object.assign({}, state, {
       times: timesArray
+    })
+  },
+
+  'enable hot overlay' (state, action) {
+    return Object.assign({}, state, {
+      hotOverlay: true
+    })
+  },
+  'disable hot overlay' (state, action) {
+    return Object.assign({}, state, {
+      hotOverlay: false
     })
   }
 }, initialState)
