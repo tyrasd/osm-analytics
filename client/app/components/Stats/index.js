@@ -171,7 +171,7 @@ class Stats extends Component {
           contributors={contributors}
         />
 
-        <Histogram key={this.props.mode} mode={this.props.mode} data={
+        <Histogram key={this.props.mode||'recency'} mode={this.props.mode||'recency'} data={
           features.reduce((prev, filter) => prev.concat(filter.features), [])
         }/>
       </div>
