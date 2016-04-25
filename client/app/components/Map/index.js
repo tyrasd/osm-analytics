@@ -220,7 +220,6 @@ class Map extends Component {
       .concat(regionToCoords(region, 'leaflet')), {
       weight: 1,
       color: 'gray',
-      //className: 'boundsLayer'
       interactive: false
     }).addTo(map)
     boundsLayer.enableEdit()

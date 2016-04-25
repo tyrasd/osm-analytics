@@ -159,3 +159,14 @@ input[type="checkbox"] {
     animation: circle infinite .75s linear;
   }
 }
+
+.leaflet-container a.link {
+  color: inherit; /* override blue from leaflet stylesheet */
+  font-size: inherit;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 4px;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  text-align: right;
+}

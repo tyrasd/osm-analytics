@@ -19,7 +19,7 @@ class HotOverlay extends Component {
     })
 
     hotProjectsLayer.bindPopup(function (layer) {
-      return '<p>HOT project <a href="#/show/hot:'+layer.feature.id+'">#'+layer.feature.id+'</a>:<br/>'+layer.feature.properties.name+'</p>'
+      return '<p>HOT project <a class="link" href="#/show/hot:'+layer.feature.id+'">#'+layer.feature.id+'</a>:<br/><a class="link" target="_blank" href="http://tasks.hotosm.org/project/'+layer.feature.id+'">'+layer.feature.properties.name+'</a></p>'
     })
   }
   componentWillReceiveProps(nextProps) {
