@@ -257,8 +257,8 @@ class Map extends Component {
             ["<=", "_timestamp", timeFilter[1]]
           ],
           ["all",
-            [">=", "_timestampMax", timeFilter[0]],
-            ["<=", "_timestampMin", timeFilter[1]]
+            [">=", "_timestampMin", timeFilter[0]],
+            ["<=", "_timestampMax", timeFilter[1]]
           ]
         ]
         if (highlightLayer.densityFilter) {
