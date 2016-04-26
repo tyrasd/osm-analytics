@@ -60,7 +60,7 @@ class Map extends Component {
     map = L.map(
       'map', {
       editable: true,
-      minZoom: 1
+      minZoom: 2
     })
     .setView([0, 35], 2)
     map.zoomControl.setPosition('bottomright')
@@ -81,7 +81,6 @@ class Map extends Component {
     }
     glLayer = L.mapboxGL({
       updateInterval: 0,
-      accessToken: mapbox_token,
       style: glStyles(this.props.map.filters),
       hash: false
     })
@@ -90,13 +89,11 @@ class Map extends Component {
     glCompareLayers = {
       before: L.mapboxGL({
         updateInterval: 0,
-        accessToken: mapbox_token,
         style: glCompareLayerStyles.before,
         hash: false
       }),
       after: L.mapboxGL({
         updateInterval: 0,
-        accessToken: mapbox_token,
         style: glCompareLayerStyles.after,
         hash: false
       })

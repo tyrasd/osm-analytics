@@ -9,7 +9,7 @@ L.MapboxGL = L.Layer.extend({
         if (options.accessToken) {
             mapboxgl.accessToken = options.accessToken;
         } else {
-            throw new Error('You should provide a Mapbox GL access token as a token option.');
+            //throw new Error('You should provide a Mapbox GL access token as a token option.');
         }
 
          /**
