@@ -23,7 +23,7 @@ class SearchBox extends Component {
   state = {
     active: true,
     currentValue: '',
-    fuse: fuse(hotProjectsList)
+    fuse: null
   }
 
   onClick() {
@@ -146,7 +146,10 @@ class SearchBox extends Component {
 
   componentDidMount() {
     hotProjectsList = hotProjects().features.map(f => ({ id: f.id, name: f.properties.name }))
-    
+    this.setState({
+      fuse: fuse(hotProjectsList)
+    })
+
     if (this.props.selectedRegion) {
       if (this.props.selectedRegion.type === 'hot') {
         this.setState({
