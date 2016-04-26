@@ -2,10 +2,18 @@ import React, { Component } from 'react'
 import { Link } from 'react-router'
 import Header from '../Header'
 import style from './style.css'
+import logo_hot      from '../../assets/logos/hot.png'
+import logo_osm      from '../../assets/logos/osm.png'
+import logo_ds       from '../../assets/logos/ds.jpg'
+import logo_mapbox   from '../../assets/logos/mapbox.png'
+import logo_redcross from '../../assets/logos/redcross.png'
+import logo_gfdrr    from '../../assets/logos/gfdrr.png'
+import logo_knight   from '../../assets/logos/knight.png'
 
 class About extends Component {
   render() {
     return (
+    <div>
       <section className="about">
         <article>
           <Header/>
@@ -35,7 +43,17 @@ class About extends Component {
           <Link to="/"><button>Get Started</button></Link>
         </article>
       </section>
-    )
+
+      <footer className="about">
+        <a href="https://hotosm.org/"><img src={logo_hot} /></a>
+        <a href="https://openstreetmap.org/"><img src={logo_osm} /></a>
+        <a href="https://developmentseed.org/"><img src={logo_ds} style={{height:'100px'}} /></a>
+        <a href="https://mapbox.com/"><img src={logo_mapbox} style={{height:'100px'}} /></a>
+        <a href="http://www.redcross.org/"><img src={logo_redcross} /></a>
+        <a href="https://www.gfdrr.org/"><img src={logo_gfdrr} /></a>
+        <a href="http://www.knightfoundation.org/"><img src={logo_knight} /></a>
+      </footer>
+    </div>)
   }
 }
 

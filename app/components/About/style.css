@@ -124,3 +124,22 @@
     }
   }
 }
+
+footer.about {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 300px;
+  margin: 0 auto;
+  padding: 15px 30px;
+  padding-top: 67px;
+  text-align: center;
+
+  background-color: #F2F5F5;
+
+  img {
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 30px;
+  }
+}
