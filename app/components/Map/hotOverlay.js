@@ -62,7 +62,7 @@ class HotOverlay extends Component {
         if (!features.length) return
         var feature = features[0]
         map.openPopup(
-          '<p>HOT project <a class="link" href="#/show/hot:'+feature.id+'">#'+feature.id+'</a>:<br/><a class="link" target="_blank" href="http://tasks.hotosm.org/project/'+feature.id+'">'+feature.properties.name+'</a></p>',
+          '<p>HOT project <a class="link" href="#/show/hot:'+feature.properties.id+'">#'+feature.properties.id+'</a>:<br/><a class="link" target="_blank" href="http://tasks.hotosm.org/project/'+feature.properties.id+'">'+feature.properties.name+'</a></p>',
           centroid(feature).geometry.coordinates.reverse()
         )
       })
