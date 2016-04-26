@@ -1,11 +1,11 @@
 import { bboxPolygon, polygon, flip } from 'turf'
-import hotProjects from '../../data/hotprojects.json'
+import hotProjects from '../../data/hotprojects.js'
 
 export default function regionToCoords(region, latLngOrder) {
   var coords
   if (region.type === 'hot') {
     let projectId = region.id
-    let project = hotProjects.features.filter(p => p.id === projectId)[0]
+    let project = hotProjects().features.filter(p => p.id === projectId)[0]
     if (!project) {
       throw new Error('unknown hot project', projectId)
     }

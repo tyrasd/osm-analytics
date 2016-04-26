@@ -5,10 +5,10 @@ import osmtogeojson from 'osmtogeojson'
 import { simplify, polygon } from 'turf'
 import Fuse from 'fuse.js'
 import Autosuggest from 'react-autosuggest'
-import hotProjects from '../../data/hotprojects.json'
+import hotProjects from '../../data/hotprojects.js'
 import style from './style.css'
 
-var hotProjectsList = hotProjects.features.map(f => ({ id: f.id, name: f.properties.name }))
+var hotProjectsList
 
 function fuse (data) {
   return new Fuse(data, {
@@ -145,6 +145,8 @@ class SearchBox extends Component {
   }
 
   componentDidMount() {
+    hotProjectsList = hotProjects().features.map(f => ({ id: f.id, name: f.properties.name }))
+    
     if (this.props.selectedRegion) {
       if (this.props.selectedRegion.type === 'hot') {
         this.setState({

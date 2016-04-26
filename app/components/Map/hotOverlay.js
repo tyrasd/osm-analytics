@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { centroid } from 'turf'
-import hotProjects from '../../data/hotprojects.json'
 
 var hotProjectsGlLayer
 
