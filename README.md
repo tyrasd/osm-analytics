@@ -1,57 +1,76 @@
 osm-analytics: data analyis tool frontend
 =========================================
 
-OSM data analysis tool user interface. See also the corresponding [backend](https://github.com/hotosm/osm-analytics-cruncher/) code.
+OSM-Analytics lets you analyse interactively how specific OpenStreetMap features are mapped in a specific region.
 
-Data Source
------------
+Say, you'd like to know when most of a specific feature type (e.g. buildings) in a specifiy country or city were added. This tool lets you select the geographical region of interest and shows a graph of the mapping activity in the region. You can even select a specific time interval to get the number of touched features in that period, and the map will highlight the matching features. Alternatively, one can view the distribution of features by their mapper's user experience. The tool also gives a side by side comparison of the map state at different points in time and lets you view which [HOT](https://hotosm.org/) projects may have includenced the mapping of a region.
 
-Data is taken from [osm-qa-tiles](http://osmlab.github.io/osm-qa-tiles/) and processed to specialized vector tiles that enable the on-the-fly calculation of worldwide OSM data statistics:
+Features
+--------
 
-* calculation of somemeta data
-* filtering out of specific OSM features by OSM tag
-* high zoom levels: that's it
-* low zoom levels: aggregate data to grid cells where each cell contains a sample of its constituent data -> sampling allows to reconstruct the distribution of the whole data set
+* supported feature types: buildings, roads
+* graphs of feature *recency* or *mapper experience*
+* highlighting of features by custom date range or user experience interval
+* calculated statistics: total number/length of features in selected region and date/experience range, number of contributors
+* shows which hot projects influenced the mapping of the selected region
+* compare map at differnt points in time
+* data updated daily
 
+Technical Overview
+------------------
 
-// user experience
+This is the OSM-Analytics user interface. See also the corresponding [backend](https://github.com/hotosm/osm-analytics-cruncher/) code.
 
-// limitations -> latest update time, binning, etc.
+The backend takes data from [osm-qa-tiles](http://osmlab.github.io/osm-qa-tiles/) and generates sets of vector tiles that contain only a specific set of features (e.g. builings). The vector tiles contain raw individual feature geometries at high zoom levels and an aggregated view at low zoom levels where features are aggregated into square bins.
 
-Functionality
+The data from these vector tiles is used to display the features on the map and to generate the statistics (graphs, number of features, contributors, etc.) by intersecting the feature geometries with the user supplied area of interest using [turf](http://turfjs.org/).
+
+Data Sampling
 -------------
 
-* recency vs. user experience
-* highlight features by time/experience interval
-* buildings, roads, etc
-* stats bar
-* compare view
+The aggregated bins contained in the lower zoom level vector tiles contain the absolute number (or total length for linear obejcts) of features in the respective cell which is used to display a basic *heatmap* style map. In addition to that, each cell contains a set of samples of the properties of the individual features that went into the respective cell (i.e. timestamp samples, user experience samples). This is necessary in order to limit the number of features to transfer to the browser.
 
+These data samples represent the statistical distribution of the constituent data in each cell and allow one to reconstruct the distribution of the data in an arbitrary region. They also allow one to extrapolate the number of features that fall into an given property interval (e.g. a date range).
 
-Usage
------
+User Experience
+---------------
 
-Based on [tj/Frontend Boilerplate](https://github.com/tj/frontend-boilerplate).
+Each feature is assigned a *user experience value* that estimates the contributor's experience in mapping the respective type of feature by looking at the total number (or length) of features that have currently been last edited by this user. For example, a user that has contributed many buildings but hardly any roads gets assigned a large score for buildings but a low one for buildings.
 
-Setup:
+In the UI, this data is then displayed on a logarithmic scale histogram, displaying how many features have been added by users of different experience levels (beginners, intermediate users, experts).
+
+Limitations
+-----------
+
+### OSM History
+
+All data in this tool is based only derived from current OSM planet data (it doesn't incorporate the full history data), which means that deleted features as well as modifications of features are not incorporated in the analysis. This introduces an incalculable systematic error into any of the generated statistics (except totals such as the number of buildings in a region). This means that when interpreting the graphs and statistics one has to keep in mind that the data only represents the *latest modification* status of each object.
+
+This issue could be fixed completely by taking the full history OSM planet data into account (which is [non-trivial](http://www.mdpi.com/2220-9964/5/3/37), unfortunately).
+
+### Binning
+
+The data binning at low zoom levels and it's inherent data sampling (see above) introduces both a geometric coarsening (a grid cell is either included as a whole in the selected region or not at all) and a statistical approximation of all generated values. The statistical error depends on the number of features in the affected region and time/experience interval, but for typical scenarios the error of totals should be below 1%.
+
+Installation and Usage
+----------------------
+
+The frontend is implemented in React/Redux and based on [tj/Frontend Boilerplate](https://github.com/tj/frontend-boilerplate).
+
+Install dependencies:
 
 ```
 $ npm install
 ```
 
-Running:
+Run in development mode:
 
 ```
 $ npm start
 ```
 
-Build:
+Generate static build:
 
 ```
 $ npm run build
 ```
-
-
-### Early Mockups
-
-![mockup screenshot](https://github.com/hotosm/osm-dat-frontend/raw/master/mockup.jpg)
