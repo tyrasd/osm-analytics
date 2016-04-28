@@ -12,7 +12,7 @@ import defaults from '../settings/defaults'
 var history = createHashHistory({ queryKey: false })
 
 const initialState = {
-  view: undefined,//'default',
+  view: 'default',
   times: ['2011', 'now'],
   region: null,
   filters: defaults.filters,

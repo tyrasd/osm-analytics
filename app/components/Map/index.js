@@ -99,6 +99,15 @@ class Map extends Component {
       })
     }
 
+    // add glLayers if map state is already initialized
+    if (this.props.map.view === 'country' || this.props.map.view === 'default') {
+      glLayer.addTo(map)
+    } else if (this.props.map.view === 'compare') {
+      glCompareLayers.before.addTo(map)
+      glCompareLayers.after.addTo(map)
+    }
+
+    // init from route params
     if (this.props.view) {
       this.props.actions.setViewFromUrl(this.props.view)
     }
