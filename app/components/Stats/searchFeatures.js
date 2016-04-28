@@ -4,18 +4,24 @@ import Protobuf from 'pbf'
 import { extent, intersect, bboxPolygon, featurecollection, centroid, lineDistance, within } from 'turf'
 import Sphericalmercator from 'sphericalmercator'
 import { queue } from 'd3-queue'
+import settings from '../../settings/settings'
 
 var merc = new Sphericalmercator({size: 512})
 
 var cache = {} // todo: cache invalidation
 
-function fetch(region, filter, callback) {
+function fetch(region, filter, time /*optional*/, callback) {
+  if (callback === undefined) {
+    callback = time
+    time = undefined
+  }
   const zoom = getRegionZoom(region)
   const tiles = getRegionTiles(region, zoom)
-  if (!cache[filter]) cache[filter] = {}
-  const toLoad = tiles.filter(tile => cache[filter][tile.hash] === undefined)
+  const cachePage = (!time || time === 'now') ? filter : time + '/' + filter
+  if (!cache[cachePage]) cache[cachePage] = {}
+  const toLoad = tiles.filter(tile => cache[cachePage][tile.hash] === undefined)
   var q = queue(4) // max 4 concurrently loading tiles in queue
-  toLoad.forEach(tile => q.defer(getAndCacheTile, tile, filter))
+  toLoad.forEach(tile => q.defer(getAndCacheTile, tile, filter, time))
   q.awaitAll(function(err) {
     if (err) return callback(err)
     // return matching features
@@ -23,7 +29,7 @@ function fetch(region, filter, callback) {
     const regionFc = featurecollection([region])
     tiles.forEach(tile => {
       output = output.concat(
-        within(cache[filter][tile.hash], regionFc).features
+        within(cache[cachePage][tile.hash], regionFc).features
       )
     })
     // todo: handle tile boundaries / split features (merge features with same osm id)
@@ -70,8 +76,9 @@ function getRegionTiles(region, zoom) {
   return tiles
 }
 
-function getAndCacheTile(tile, filter, callback) {
-  loadTile(tile, filter, function(err, data) {
+function getAndCacheTile(tile, filter, time, callback) {
+  const cachePage = (!time || time === 'now') ? filter : time + '/' + filter
+  loadTile(tile, filter, time, function(err, data) {
     if (err) return callback(err)
     // convert features to centroids, store tile data in cache
     data.features = data.features.map(feature => {
@@ -80,7 +87,7 @@ function getAndCacheTile(tile, filter, callback) {
       centr.properties._length = centr.properties._lineDistance || lineDistance(feature, 'kilometers')
       return centr
     })
-    cache[filter][tile.hash] = data
+    cache[cachePage][tile.hash] = data
     callback(null) // don't return any actual data as it is available via the cache already
   })
 }
@@ -96,9 +103,14 @@ function parseTile(tile, data, callback) {
   }
   callback(null, featurecollection(features))
 }
-function loadTile(tile, filter, callback) {
+function loadTile(tile, filter, time, callback) {
   // based on https://github.com/mapbox/mapbox-gl-js/blob/master/js/source/worker.js
-  var url = 'http://52.207.244.74:7778/'+filter+'/'+tile.zoom+'/'+tile.x+'/'+tile.y+'.pbf' // todo: ->settings
+  var url
+  if (!time || time === 'now') {
+    url = settings['vt-source']+'/'+filter+'/'+tile.zoom+'/'+tile.x+'/'+tile.y+'.pbf'
+  } else {
+    url = settings['vt-hist-source']+'/'+time+'/'+filter+'/'+tile.zoom+'/'+tile.x+'/'+tile.y+'.pbf'
+  }
 
   getArrayBuffer(url, function done(err, data) {
     if (err) return callback(err)

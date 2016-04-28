@@ -151,7 +151,10 @@ class Map extends Component {
       this.mapSetRegion(nextProps.map.region)
     }
     if (nextProps.map.filters.join() !== this.props.map.filters.join()) { // todo: handle this in reducer?
-      glLayer.setStyle(glStyles(nextProps.map.filters, nextProps.stats.timeFilter, nextProps.stats.experienceFilter))
+      glLayer.setStyle(glStyles(nextProps.map.filters, {
+        timeFilter: nextProps.stats.timeFilter,
+        experienceFilter: nextProps.stats.experienceFilter
+      }))
       let glCompareLayerStyles = getCompareStyles(nextProps.map.filters, nextProps.map.times)
       glCompareLayers.before.setStyle(glCompareLayerStyles.before)
       glCompareLayers.after.setStyle(glCompareLayerStyles.after)

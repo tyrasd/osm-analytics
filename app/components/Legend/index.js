@@ -3,6 +3,7 @@ import * as request from 'superagent'
 import moment from 'moment'
 import style from './style.css'
 import { filters as featureTypeOptions } from '../../settings/options'
+import settings from '../../settings/settings'
 
 class Legend extends Component {
   state = {}
@@ -50,7 +51,7 @@ class Legend extends Component {
   }
 
   updateLastModified(featureType) {
-    request.head('http://52.207.244.74:7778/'+featureType+'/0/0/0.pbf').end((err, res) => {
+    request.head(settings['vt-source']+'/'+featureType+'/0/0/0.pbf').end((err, res) => {
       if (!err) this.setState({
         lastModified: res.headers['last-modified']
       })

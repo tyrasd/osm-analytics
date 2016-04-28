@@ -1,15 +1,25 @@
 import buildings from './buildings.json'
 import highways from './highways.json'
 
-export default function getStyle(filters, timeFilter, experienceFilter) {
+import settings from '../../../settings/settings'
+import { filters as filterOptions } from '../../../settings/options'
+
+export default function getStyle(filters, options) {
+  if (!options) options = {}
+  const timeFilter = options.timeFilter
+  const experienceFilter = options.experienceFilter
+  const server = options.source || settings['vt-source']
   const filterStyles = {
     buildings,
     highways
   }
   var allSources = {}
-  Object.keys(filterStyles).forEach(style => {
+  filterOptions.forEach(filterOption => {
+    let style = filterOption.id
+    if (!filterStyles[style]) throw new Error('gl style undefined for feature type ', filterOption)
     Object.keys(filterStyles[style].sources).forEach(source => {
-      allSources[source] = filterStyles[style].sources[source]
+      allSources[source] = JSON.parse(JSON.stringify(filterStyles[style].sources[source]))
+      allSources[source].tiles[0] = allSources[source].tiles[0].replace('{{server}}', server)
     })
   })
   return {
@@ -48,23 +58,14 @@ export default function getStyle(filters, timeFilter, experienceFilter) {
 }
 
 export function getCompareStyles(filters, compareTimes) {
+  const beforeSource = (compareTimes[0] === 'now') ? settings['vt-source'] : settings['vt-hist-source']+'/'+compareTimes[0]
+  const afterSource = (compareTimes[1] === 'now') ? settings['vt-source'] : settings['vt-hist-source']+'/'+compareTimes[1]
   var glCompareLayerStyles = {
-    before: JSON.parse(JSON.stringify(getStyle(filters))),
-    after: JSON.parse(JSON.stringify(getStyle(filters)))
+    before: JSON.parse(JSON.stringify(getStyle(filters, { source: beforeSource }))),
+    after: JSON.parse(JSON.stringify(getStyle(filters, { source: afterSource })))
   }
   // don't need highlight layers
   glCompareLayerStyles.before.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
   glCompareLayerStyles.after.layers = glCompareLayerStyles.before.layers.filter(layer => !layer.source.match(/highlight/))
-  // update urls to fetch historic data
-  const beforeStr = (compareTimes[0] === 'now') ? '' : compareTimes[0]
-  const afterStr = (compareTimes[1] === 'now') ? '' : compareTimes[1]
-  glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-raw'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+beforeStr+'/')
-  glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-buildings-aggregated'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+beforeStr+'/')
-  glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-raw'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+afterStr+'/')
-  glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-buildings-aggregated'].tiles[0].replace(/\/buildings[^\/]*\//, '/buildings'+afterStr+'/')
-  glCompareLayerStyles.before.sources['osm-highways-raw'].tiles[0] = glCompareLayerStyles.before.sources['osm-highways-raw'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+beforeStr+'/')
-  glCompareLayerStyles.before.sources['osm-highways-aggregated'].tiles[0] = glCompareLayerStyles.before.sources['osm-highways-aggregated'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+beforeStr+'/')
-  glCompareLayerStyles.after.sources['osm-highways-raw'].tiles[0] = glCompareLayerStyles.after.sources['osm-highways-raw'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+afterStr+'/')
-  glCompareLayerStyles.after.sources['osm-highways-aggregated'].tiles[0] = glCompareLayerStyles.after.sources['osm-highways-aggregated'].tiles[0].replace(/\/highways[^\/]*\//, '/highways'+afterStr+'/')
   return glCompareLayerStyles
 }
