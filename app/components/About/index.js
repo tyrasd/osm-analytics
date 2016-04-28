@@ -45,7 +45,7 @@ class About extends Component {
       </section>
 
       <footer className="about">
-        <a href="https://hotosm.org/"><img src={logo_hot} /></a>
+        <a href="https://hotosm.org/"><img src={logo_hot} style={{height:'100px'}} /></a>
         <a href="https://openstreetmap.org/"><img src={logo_osm} /></a>
         <a href="https://developmentseed.org/"><img src={logo_ds} style={{height:'100px'}} /></a>
         <a href="https://mapbox.com/"><img src={logo_mapbox} style={{height:'100px'}} /></a>
