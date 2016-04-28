@@ -17,6 +17,9 @@ header {
     font-weight: normal;
     color: #414141;
     .beta {
+      vertical-align: bottom;
+      position: relative;
+      top: -5px;
       font-style: italic;
     }
   }
