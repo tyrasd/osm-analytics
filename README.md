@@ -50,7 +50,11 @@ This issue could be fixed completely by taking the full history OSM planet data 
 
 ### Binning
 
-The data binning at low zoom levels and it's inherent data sampling (see above) introduces both a geometric coarsening (a grid cell is either included as a whole in the selected region or not at all) and a statistical approximation of all generated values. The statistical error depends on the number of features in the affected region and time/experience interval, but for typical scenarios the error of totals should be below 1%.
+The data binning at low zoom levels and it's inherent data sampling (see above) introduces both a geometric coarsening (a grid cell is either included as a whole in the selected region or not at all) and a statistical approximation of all generated values. The statistical error depends on the number of features in the affected region and time/experience interval, but for typical scenarios the relative error of totals should be below 1%.
+
+### Multipolygons
+
+The input data from [osm-qa-tiles](http://osmlab.github.io/osm-qa-tiles/) currently doesn't support multipolygon relations, which means that for example buildings that are mapped as a multipolygon relation are missing in the analysis and map view.
 
 Installation and Usage
 ----------------------
