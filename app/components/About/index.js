@@ -49,7 +49,7 @@ class About extends Component {
         <a href="https://openstreetmap.org/"><img src={logo_osm} /></a>
         <a href="https://mapbox.com/"><img src={logo_mapbox} style={{height:'100px'}} /></a>
         <a href="http://www.redcross.org/"><img src={logo_redcross} /></a>
-        <a href="https://www.gfdrr.org/"><img src={logo_gfdrr} /></a>
+        <a href="https://www.gfdrr.org/"><img src={logo_gfdrr} style={{height:'50px'}} /></a>
         <a href="https://developmentseed.org/"><img src={logo_ds} style={{height:'50px'}} /></a>
         <a href="http://www.knightfoundation.org/"><img src={logo_knight} /></a>
       </footer>
