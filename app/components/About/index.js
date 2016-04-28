@@ -4,7 +4,7 @@ import Header from '../Header'
 import style from './style.css'
 import logo_hot      from '../../assets/logos/hot.png'
 import logo_osm      from '../../assets/logos/osm.png'
-import logo_ds       from '../../assets/logos/ds.jpg'
+import logo_ds       from '../../assets/logos/ds.png'
 import logo_mapbox   from '../../assets/logos/mapbox.png'
 import logo_redcross from '../../assets/logos/redcross.png'
 import logo_gfdrr    from '../../assets/logos/gfdrr.png'
@@ -47,10 +47,10 @@ class About extends Component {
       <footer className="about">
         <a href="https://hotosm.org/"><img src={logo_hot} style={{height:'100px'}} /></a>
         <a href="https://openstreetmap.org/"><img src={logo_osm} /></a>
-        <a href="https://developmentseed.org/"><img src={logo_ds} style={{height:'100px'}} /></a>
         <a href="https://mapbox.com/"><img src={logo_mapbox} style={{height:'100px'}} /></a>
         <a href="http://www.redcross.org/"><img src={logo_redcross} /></a>
         <a href="https://www.gfdrr.org/"><img src={logo_gfdrr} /></a>
+        <a href="https://developmentseed.org/"><img src={logo_ds} style={{height:'50px'}} /></a>
         <a href="http://www.knightfoundation.org/"><img src={logo_knight} /></a>
       </footer>
     </div>)
