@@ -16,6 +16,9 @@ header {
     vertical-align: text-bottom;
     font-weight: normal;
     color: #414141;
+    .beta {
+      font-style: italic;
+    }
   }
   ul {
     display: inline-block;

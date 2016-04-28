@@ -6,7 +6,7 @@ class Header extends Component {
   render() {
     return (
       <header>
-        <h1>OpenStreetMap Analytics</h1>
+        <h1>OpenStreetMap Analytics <sup className="beta">beta</sup></h1>
         <ul>
           <li><Link to="/" className="link" activeClassName="active">Analysis Map</Link></li>
           <li><Link to="/about" className="link" activeClassName="active">About</Link></li>
