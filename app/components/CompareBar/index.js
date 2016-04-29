@@ -28,7 +28,7 @@ class CompareBar extends Component {
           <p>{this.props.map.times[0]}</p>
         </li>
         {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
-          return (<li key={filter}>
+          return (<li key={filter} title={filterOptions.find(f => f.id === filter).altText}>
             <span className="number">{
               numberWithCommas(
                 (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(
@@ -49,7 +49,7 @@ class CompareBar extends Component {
         </ul>
         <ul className="metrics after">
         {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
-          return (<li key={filter}>
+          return (<li key={filter} title={filterOptions.find(f => f.id === filter).altText}>
             <span className="number">{
               numberWithCommas(
                 (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(

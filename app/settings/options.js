@@ -1,15 +1,18 @@
 export const filters = [
   {
     id: 'buildings',
-    description: 'Buildings'
+    description: 'Buildings',
+    altText: 'Polygons with a building=* tag'
   },
   {
     id: 'highways',
-    description: 'Roads'
+    description: 'Roads',
+    altText: 'Lines with a highway=* tag (highways & roads, but also tracks and paths)'
   },
   {
     id: 'pois',
     description: 'POIs',
+    altText: 'Points with an amenity=* tag (e.g. schools, restaurants,  places of worship, drinking water, banks, fuel stations, etc.)',
     hidden: true
   }
 ]

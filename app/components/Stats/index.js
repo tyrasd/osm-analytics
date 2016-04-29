@@ -112,7 +112,7 @@ class Stats extends Component {
             {timeFilter}
           </li>
         {features.map(filter => {
-          return (<li key={filter.filter}>
+          return (<li key={filter.filter} title={filters.find(f => f.id === filter.filter).altText}>
             <span className="number">{
               numberWithCommas(Number((filter.filter === 'highways'
                 ? unitSystems[this.props.stats.unitSystem].distance.convert(
