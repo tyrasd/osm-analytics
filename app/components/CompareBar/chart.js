@@ -248,7 +248,7 @@ class Timegraph extends Component {
         "update": {
           "x": {"scale": "x", "signal": filter+"_tooltip.day", "offset": -8},
           "y": {"scale": filter+"_y", "signal": filter+"_tooltip.value", "offset": -5},
-          "text": {"signal": filter+"_tooltip.value"},
+          "text": {"signal": filter+"_tooltipText"},
           "fillOpacity": [
             { "test": "!"+filter+"_tooltip._id",
               "value": 0
@@ -265,6 +265,13 @@ class Timegraph extends Component {
       "streams": [
         {"type": "@"+filter+":mouseover", "expr": "datum"},
         {"type": "@"+filter+":mouseout", "expr": "{}"}
+      ]
+    })))
+    styleSpec.signals = styleSpec.signals.concat(filters.map(filter => ({
+      "name": filter+"_tooltipText",
+      "init": {},
+      "streams": [
+        {"type": filter+"_tooltip", "expr": "round("+filter+"_tooltip.value)"}
       ]
     })))
 
