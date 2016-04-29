@@ -8,7 +8,7 @@ class FilterButton extends Component {
     var btn = <button className='filter' title='Select Map Features'>{filters.find(filter => filter.id === this.props.enabledFilters[0]).description}&ensp;▾</button>
     return (
       <DropdownButton
-        options={filters}
+        options={filters.filter(f => !f.hidden)}
         btnElement={btn}
         multiple={false}
         selectedKeys={this.props.enabledFilters}

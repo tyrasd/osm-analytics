@@ -9,7 +9,8 @@ export const filters = [
   },
   {
     id: 'pois',
-    description: 'POIs'
+    description: 'POIs',
+    hidden: true
   }
 ]
 
