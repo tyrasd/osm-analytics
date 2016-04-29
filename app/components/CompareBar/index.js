@@ -30,10 +30,10 @@ class CompareBar extends Component {
         {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
           return (<li key={filter}>
             <span className="number">{
-              numberWithCommas(Number(
+              numberWithCommas(
                 (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(
-                  this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[0]).value
-              )).toFixed(0))
+                  (this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[0]) || {}).value
+              ))
             }</span><br/>
             {filter === 'highways'
             ? <UnitSelector
@@ -51,10 +51,10 @@ class CompareBar extends Component {
         {this.props.map.filters.filter(filter => this.state.featureCounts[filter]).map(filter => {
           return (<li key={filter}>
             <span className="number">{
-              numberWithCommas(Number(
+              numberWithCommas(
                 (filter === 'highways' ? unitSystems[this.props.stats.unitSystem].distance.convert : x=>x)(
-                  this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[1]).value
-              )).toFixed(0))
+                  (this.state.featureCounts[filter].find(counts => counts && counts.id === this.props.map.times[1]) || {}).value
+              ))
             }</span><br/>
             {filter === 'highways'
             ? <UnitSelector
@@ -102,7 +102,7 @@ class CompareBar extends Component {
     filters.forEach(filter => {
       featureCounts[filter] = []
       timeOptions.forEach((timeOption, timeIdx) => {
-        if (timeOption.except === filter) return
+        if (timeOption.except && timeOption.except.indexOf(filter) >= 0) return
         q.defer(function(region, filter, time, callback) {
           searchFeatures(region, filter, time, function(err, data) {
             if (err) callback(err)
@@ -135,7 +135,8 @@ class CompareBar extends Component {
 }
 
 function numberWithCommas(x) { // todo: de-duplicate code!
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (isNaN(Number(x))) return '?'
+    return Number(x).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function mapStateToProps(state) {
