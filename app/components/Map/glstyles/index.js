@@ -1,5 +1,6 @@
 import buildings from './buildings.json'
 import highways from './highways.json'
+import pois from './pois.json'
 
 import settings from '../../../settings/settings'
 import { filters as filterOptions } from '../../../settings/options'
@@ -11,7 +12,8 @@ export default function getStyle(filters, options) {
   const server = options.source || settings['vt-source']
   const filterStyles = {
     buildings,
-    highways
+    highways,
+    pois
   }
   var allSources = {}
   filterOptions.forEach(filterOption => {

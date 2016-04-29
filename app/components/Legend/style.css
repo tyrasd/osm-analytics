@@ -73,6 +73,23 @@
         }
       }
 
+      &.pois {
+        background-color: #FF0000;
+
+        &.feature {
+          border-radius: 4px;
+        }
+        &.high {
+          opacity: 1.0;
+        }
+        &.mid {
+          opacity: 0.55;
+        }
+        &.low {
+          opacity: 0.1;
+        }
+      }
+
       &.highlight {
         background-color: #5CBAD8;
         border-color: #5CBAD8;
