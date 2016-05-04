@@ -61,10 +61,13 @@ class ContributorsModal extends Component {
       q.defer(req.end.bind(req))
     })
     q.awaitAll(function(err, data) {
-      if (err) throw err
-      uidsToRequest.forEach((uid, idx) => {
-        this.userNames[uid] = data[idx].body[0]
-      })
+      if (err) {
+        console.error(err)
+      } else {
+        uidsToRequest.forEach((uid, idx) => {
+          this.userNames[uid] = data[idx].body[0]
+        })
+      }
       this.setState({ loading: false })
     }.bind(this))
   }
